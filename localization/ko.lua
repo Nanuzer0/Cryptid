@@ -513,9 +513,9 @@ return {
 			bl_cry_decision = {
 				name = "결단",
 				text = {
-					"플레이 또는 버리기 시 조커 고정",
-					"라운드 후 해로운 부푼 팩",
-					"열기",
+					"라운드 후 해로운 부푼 팩에서",
+					"저주받은 조커를 반드시",
+					"선택해야 함",
 				},
 			},
 		},
@@ -2287,7 +2287,7 @@ return {
 				text = {
 					"구매한 아이템을",
 					"{C:green}#2#분의 #1#{} 확률로 {C:attention}파괴{}",
-					"{C:attention}판매{} 시 소지금 절반",
+					"{C:attention}판매{} 시 소지금 모두 상실",
 				},
 			},
 			j_cry_morse = {
@@ -4773,8 +4773,6 @@ return {
 				text = {
 					"최대 {C:attention}#2#{}개의 {X:cry_cursed,C:white}저주받은{} 조커 중",
 					"{C:attention}#1#{}개 선택",
-					"{C:attention}스킵{} 시 가장 오른쪽의",
-					"보유 조커가 {C:red}추방{}됨",
 				},
 			},
 			undiscovered_code = {

@@ -506,9 +506,9 @@ return {
 			bl_cry_decision = {
 				name = "The Decision",
 				text = {
-					"Fixiere Joker beim Spielen oder Abwerfen",
-					"Öffne ein Unheilvolles Clownspaket",
-					"nach der Runde",
+					"Muss einen Verfluchten Joker",
+					"aus dem Unheilvollen Clownspaket",
+					"nach der Runde wählen",
 				},
 			},
 		},
@@ -2270,7 +2270,7 @@ return {
 				text = {
 					"Chance von {C:green}#1# zu #2#{} gekaufte",
 					"Gegenstände zu {C:attention}zerstören{},",
-					"halbiert Geld wenn {C:attention}verkauft",
+					"entfernt alles Geld wenn {C:attention}verkauft",
 				},
 			},
 			j_cry_morse = {
@@ -4736,8 +4736,6 @@ return {
 				text = {
 					"Wähle {C:attention}#1#{} von",
 					"bis zu {C:attention}#2# {X:cry_cursed,C:white}Verfluchten{} Joker#<n>2#{}",
-					"{C:attention}Überspringen{} {C:red}verbannt{}",
-					"den Joker {C:attention}ganz rechts{} im Besitz",
 				},
 			},
 			undiscovered_code = {

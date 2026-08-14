@@ -646,7 +646,7 @@ local meme3 = {
 }
 -- 804 in case of meme pack 4
 -- 805-808 for program packs
--- Baneful Buffoon Pack 1 (1/4 Cursed jokers)
+-- Baneful Buffoon Pack 1 (1/2 Cursed jokers)
 local baneful1 = {
 	cry_credits = {
 		idea = {
@@ -670,27 +670,12 @@ local baneful1 = {
 	atlas = "pack",
 	order = 809,
 	pos = { x = 0, y = 2 },
-	cry_baneful_punishment = true,
 	no_music = true, --prevent override of music, such as in boss blinds
 	no_doe = true,
 	unskippable = function(self)
-		--Only be unskippable if no VALID jokers are owned (if rightmost is eternal/cursed, the next)
-		if G.jokers and (#G.jokers.cards == 0 or not G.jokers.cards) then
-			return true
-		end
-		--For loop that iterates from right to left, breaking and returning false if finding the rightmost valid noneternal or cursed Joker
-		if G.jokers and G.jokers.cards then
-			for i = #G.jokers.cards, 1, -1 do
-				if
-					not (SMODS.is_eternal(G.jokers.cards[i]) or G.jokers.cards[i].config.center.rarity == "cry_cursed")
-				then
-					return false
-				end
-			end
-		end
 		return true
 	end,
-	config = { extra = 4, choose = 1 },
+	config = { extra = 2, choose = 1 },
 	cost = 1,
 	immutable = true,
 	weight = 0, --never spawn naturally
