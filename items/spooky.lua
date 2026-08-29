@@ -535,17 +535,10 @@ local choco7 = {
 					ease_dollars(3)
 				end
 				if G.GAME.events.ev_cry_choco8 then
-					local card = create_card(
-						"Joker",
-						G.jokers,
-						nil,
-						nil,
-						nil,
-						nil,
-						pseudorandom_element(Cryptid.food, pseudoseed("cry_candy_rain"))
-					)
-					card:add_to_deck()
-					G.jokers:emplace(card)
+					SMODS.add_card({
+						set = "Food",
+						area = G.jokers,
+					})
 				end
 			end
 			return catd(self, debuff)
@@ -1362,7 +1355,7 @@ local spookydeck = {
 	calculate = function(self, blind, context)
 		if context.modify_ante and context.ante_end then
 			local card
-			if pseudorandom(pseudoseed("cry_spooky_curse")) < self.config.curse_rate then
+			if pseudorandom(pseudoseed("cry_spooky_curse")) < self.config.cry_curse_rate then
 				card = create_card("Joker", G.jokers, nil, "cry_cursed", nil, nil, nil, "cry_spooky")
 			else
 				card = create_card("Joker", G.jokers, nil, "cry_candy", nil, nil, nil, "cry_spooky")
@@ -1373,7 +1366,7 @@ local spookydeck = {
 		end
 	end,
 	cry_antimatter_calculate = function(self, context)
-		if context.modify_ante and SMODS.ante_end then
+		if context.modify_ante and context.ante_end then
 			local card = create_card("Joker", G.jokers, nil, "cry_cursed", nil, nil, nil, "cry_spooky")
 			card:add_to_deck()
 			card:start_materialize()
