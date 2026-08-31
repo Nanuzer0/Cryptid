@@ -200,7 +200,7 @@ function get_new_boss()
 		return v
 	end
 	--This is how nostalgic deck replaces the boss blinds with Nostalgic versions
-	if G.GAME.modifiers.cry_beta then
+	if G.GAME.modifiers.cry_beta or G.GAME.modifiers.cry_antimatter_beta then
 		local bl_key = string.sub(bl, 4)
 		local nostalgicblinds = {
 			arm = (Cryptid.enabled("bl_cry_oldarm") == true),
