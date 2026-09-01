@@ -1,18 +1,26 @@
-name: Stylua
+name: CI & Formatting
 
 on:
   push:
     branches:
       - '*'
+  pull_request:
+    branches:
+      - '*'
 
 jobs:
-  stylua:
+  lint-and-format:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run Luacheck
+        uses: lunarmodules/luacheck@v1
+        with:
+          args: . --config .luacheckrc
 
       - name: Run stylua
         uses: JohnnyMorganz/stylua-action@v4
@@ -22,6 +30,7 @@ jobs:
           args: .
 
       - name: Commit changes
+        if: github.event_name == 'push'
         run: |
           git config --global user.name "jolly[bot]"
           git config --global user.email "jolly[bot]@users.noreply.github.com"
