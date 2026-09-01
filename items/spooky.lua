@@ -377,7 +377,7 @@ local potion = {
 			delay(1.3)
 			for k, v in pairs(G.GAME.hands) do
 				if v.level > 1 then
-					level_up_hand(used_consumable, k, true, -1)
+					level_up_hand(card, k, true, -1)
 				end
 			end
 			update_hand_text(
@@ -896,14 +896,14 @@ local trick_or_treat = {
 			end
 		end
 	end,
-	loc_vars = function(self, info_queue, center)
+	loc_vars = function(self, info_queue, card)
 		local num, denom =
 			SMODS.get_probability_vars(card, 3, card and card.ability.extra.odds or self.config.extra.odds)
 		return {
 			vars = {
 				num,
 				denom,
-				number_format(center.ability.extra.num_candies),
+				number_format(card and card.ability.extra.num_candies or self.config.extra.num_candies),
 			},
 		}
 	end,
@@ -2231,7 +2231,7 @@ local buttercup = {
 	init = function()
 		local start_dissolveref = Card.start_dissolve
 		function Card:start_dissolve(...)
-			start_dissolveref(self, card)
+			start_dissolveref(self, ...)
 			if self.config.center.key == "j_cry_buttercup" then
 				G.E_MANAGER:add_event(Event({
 					func = function()
