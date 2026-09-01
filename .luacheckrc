@@ -4,7 +4,7 @@
 std = "lua51"
 max_line_length = false
 
--- Allow setting and defining top-level globals
+-- Allow defining and modifying globals
 allow_defined = true
 allow_defined_top = true
 
@@ -12,6 +12,8 @@ allow_defined_top = true
 globals = {
 	-- Balatro engine / core objects & globals
 	"G",
+	"Game",
+	"Controller",
 	"love",
 	"NFS",
 	"HEX",
@@ -19,6 +21,8 @@ globals = {
 	"Card",
 	"CardArea",
 	"UIBox",
+	"UIBox_button",
+	"UIBox_dyn_container",
 	"Moveable",
 	"Node",
 	"Sprite",
@@ -37,15 +41,20 @@ globals = {
 	"Particles",
 	"DynaText",
 	"EMPTY",
+	"empty",
+	"utf8",
 
-	-- Balatro / Steamodded helper functions
+	-- Balatro / Steamodded helper functions & variables
 	"pseudorandom",
 	"pseudorandom_element",
 	"pseudoseed",
+	"pseudoshuffle",
+	"pseudohash",
 	"get_pack",
 	"poll_edition",
 	"localize",
 	"loc_colour",
+	"loc_parse_string",
 	"sendInfoMessage",
 	"sendErrorMessage",
 	"sendDebugMessage",
@@ -53,17 +62,53 @@ globals = {
 	"add_tag",
 	"add_joker",
 	"copy_card",
+	"copy_table",
 	"create_card",
+	"create_badge",
+	"create_slider",
+	"create_toggle",
+	"create_text_input",
+	"create_shop_card_ui",
+	"create_tabs",
+	"create_option_cycle",
+	"create_UIBox_spectral_pack",
+	"create_UIBox_current_hands",
+	"create_UIBox_exploit",
+	"create_UIBox_your_collection",
+	"create_UIBox_blind_choice",
+	"create_UIBox_pointer",
+	"get_blind_main_colour",
+	"get_stake_sprite",
+	"draw_card",
 	"find_joker",
 	"get_current_pool",
+	"get_next_voucher_key",
+	"get_next_tag_key",
+	"get_deck_win_stake",
+	"update_hand_text",
+	"juice_card",
+	"juice_card_until",
+	"attention_text",
+	"mix_colours",
+	"darken",
+	"lighten",
+	"percent",
+	"inc_career_stat",
+	"stop_use",
+	"number_format",
+	"score_number_scale",
+	"format_ui_value",
+	"evaluate_poker_hand",
 	"ease_dollars",
 	"ease_hands_played",
 	"ease_discard",
+	"ease_ante",
 	"delay",
 	"play_sound",
 	"stop_sound",
 	"check_for_unlock",
 	"set_screen_positions",
+	"set_discover_tallies",
 	"discover_card",
 	"generate_card_ui",
 	"get_badge_colour",
@@ -84,6 +129,21 @@ globals = {
 	"ease_value",
 	"calculate_context",
 	"eval_card",
+	"unlock_card",
+	"lock_card",
+	"change_shop_size",
+	"playing_card_joker_effects",
+	"compress_and_save",
+	"STR_PACK",
+	"STR_UNPACK",
+	"_RELEASE_MODE",
+	"storage_area_config",
+	"INIT_COLLECTION_CARD_ALERTS",
+	"tprint",
+	"remove_nils",
+	"TRANSPOSE_TEXT_INPUT",
+	"MODIFY_TEXT_INPUT",
+	"crash",
 
 	-- Steamodded
 	"SMODS",
@@ -96,8 +156,9 @@ globals = {
 	"to_number",
 	"is_big",
 	"is_number",
+	"lenient_bignum",
 
-	-- Cryptid
+	-- Cryptid globals & functions
 	"Cryptid",
 	"Cryptid_config",
 	"cry_enable_all",
@@ -125,21 +186,45 @@ globals = {
 	"cry_asc_vars_read",
 	"cry_asc_vars_dump",
 	"cry_asc_vars_load",
+	"cry_get_next_voucher_edition",
+	"cry_edeck_draw",
+	"cry_prob",
 
 	-- Cross-mod compatibility
 	"JokerDisplay",
 	"CardSleeves",
 	"Spectrallib",
+	"SpectrumAPI",
 	"Bunco",
 	"Betmma",
+	"Incantation",
+	"AllowStacking",
+	"AllowDividing",
+	"StrangeLib",
 	"Steamodded",
+	"Overflow",
+	"AltTexture",
+	"TexturePack",
+	"Aurinko",
+	"calculate_infinifusion",
 }
 
--- Mute benign warnings
-unused_args = false
+-- Ignore warning categories:
+-- 2xx: Unused variables, parameters, and loops
+-- 3xx: Unused values / assignments
+-- 4xx: Shadowing
+-- 5xx: Flow / code style suggestions (unreachable code, empty loops, etc.)
+-- 6xx: Formatting / line length
+-- 111, 112, 121, 122, 131: Global setting / mutating
 ignore = {
-	"212", -- Unused argument
-	"213", -- Unused loop variable
-	"631", -- Line is too long
-	"561", -- Cyclomatic complexity
+	"2",
+	"3",
+	"4",
+	"5",
+	"6",
+	"111",
+	"112",
+	"121",
+	"122",
+	"131",
 }
