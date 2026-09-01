@@ -1394,10 +1394,9 @@ local noisy = {
 							{ string = "rand()", colour = G.C.JOKER_GREY },
 							{
 								string = "#@"
-									.. (G.deck and G.deck.cards[1] and G.deck.cards[#G.deck.cards].base.id or 11)
+									.. (G.deck.cards[1] and G.deck.cards[#G.deck.cards].base.id or 11)
 									.. (
-										G.deck
-											and G.deck.cards[1]
+										G.deck.cards[1]
 											and G.deck.cards[#G.deck.cards].base.suit
 											and G.deck.cards[#G.deck.cards].base.suit:sub(1, 1)
 										or "D"
@@ -1454,11 +1453,11 @@ local noisy = {
 							{ string = "rand()", colour = G.C.JOKER_GREY },
 							{
 								string = "@#"
-									.. (G.deck and G.deck.cards[1] and G.deck.cards[1].base.suit and G.deck.cards[1].base.suit:sub(
+									.. (G.deck.cards[1] and G.deck.cards[1].base.suit and G.deck.cards[1].base.suit:sub(
 										2,
 										2
 									) or "m")
-									.. (G.deck and G.deck.cards[1] and G.deck.cards[1].base.id or 7),
+									.. (G.deck.cards[1] and G.deck.cards[1].base.id or 7),
 								colour = G.C.BLUE,
 							},
 							loc_chips,

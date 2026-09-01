@@ -8564,7 +8564,7 @@ local kidnap = {
 		info_queue[#info_queue + 1] = G.P_CENTERS.j_devious
 		info_queue[#info_queue + 1] = G.P_CENTERS.j_crafty
 		local value = 0
-		if G.GAME and G.GAME.jokers_sold then
+		if G.GAME.jokers_sold then
 			for _, v in ipairs(G.GAME.jokers_sold) do
 				local center = G.P_CENTERS[v]
 				if
@@ -8863,7 +8863,7 @@ local pumpkin = {
 			card.ability.extra.enabled = false
 		end
 
-		if context.cry_start_dissolving and context.card == card and card.ability.extra.enabled == true then
+		if context.joker_type_destroyed and context.card == card and card.ability.extra.enabled == true then
 			local newcard = create_card("Joker", G.jokers, nil, nil, nil, nil, "j_cry_carved_pumpkin")
 			newcard:add_to_deck()
 			G.jokers:emplace(newcard)
@@ -10618,7 +10618,7 @@ local thal = {
 	end,
 
 	calc_xmult = function(self, card)
-		if not (G.jokers and G.jokers.cards) then
+		if not G.jokers then
 			return 1
 		end
 
@@ -10923,19 +10923,10 @@ local miscitems = {
 return {
 	name = "Misc. Jokers",
 	init = function()
-		-- Add more calculation contexts (used by Pumpkin and Clicked Cookie)
-		local oldfunc = Card.start_dissolve
-		function Card:start_dissolve(dissolve_colours, silent, dissolve_time_fac, no_juice)
-			if G and G.jokers and G.jokers.cards then
-				SMODS.calculate_context({ cry_start_dissolving = true, card = self })
-			end
-			return oldfunc(self, dissolve_colours, silent, dissolve_time_fac, no_juice)
-		end
-
 		local lcpref = Controller.L_cursor_press
 		function Controller:L_cursor_press(x, y)
 			lcpref(self, x, y)
-			if G and G.jokers and G.jokers.cards and not G.SETTINGS.paused then
+			if G.jokers and not G.SETTINGS.paused then
 				SMODS.calculate_context({ cry_press = true })
 			end
 		end
