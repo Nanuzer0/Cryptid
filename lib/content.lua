@@ -911,21 +911,9 @@ function Cryptid.antimatter_sleeve_compat(sleeve_key)
 		return true
 	end
 	return (
-		Cryptid.safe_get(
-			G.PROFILES,
-			G.SETTINGS.profile,
-			"sleeve_usage",
-			full_key,
-			"wins_by_key",
-			"stake_gold"
-		) or Cryptid.safe_get(
-			G.PROFILES,
-			G.SETTINGS.profile,
-			"sleeve_usage",
-			sleeve_key,
-			"wins_by_key",
-			"stake_gold"
-		) or 0
+		Cryptid.safe_get(G.PROFILES, G.SETTINGS.profile, "sleeve_usage", full_key, "wins_by_key", "stake_gold")
+		or Cryptid.safe_get(G.PROFILES, G.SETTINGS.profile, "sleeve_usage", sleeve_key, "wins_by_key", "stake_gold")
+		or 0
 	) > 0
 end
 
@@ -1457,7 +1445,9 @@ SMODS.RunSelectPage({
 		SMODS.RunSelectPage.inject(self)
 	end,
 	card_hover = function(self, card)
-		local page = SMODS.RunSelect and SMODS.RunSelect.Pages and (SMODS.RunSelect.Pages.casl_sleeve_choice or SMODS.RunSelect.Pages.sleeve_choice)
+		local page = SMODS.RunSelect
+			and SMODS.RunSelect.Pages
+			and (SMODS.RunSelect.Pages.casl_sleeve_choice or SMODS.RunSelect.Pages.sleeve_choice)
 		if page and page.card_hover then
 			return page:card_hover(card)
 		end
@@ -1508,7 +1498,9 @@ SMODS.RunSelectPage({
 		end
 	end,
 	create_selection_card = function(self, card_key, card_number, area)
-		local page = SMODS.RunSelect and SMODS.RunSelect.Pages and (SMODS.RunSelect.Pages.casl_sleeve_choice or SMODS.RunSelect.Pages.sleeve_choice)
+		local page = SMODS.RunSelect
+			and SMODS.RunSelect.Pages
+			and (SMODS.RunSelect.Pages.casl_sleeve_choice or SMODS.RunSelect.Pages.sleeve_choice)
 		if page and page.create_selection_card then
 			local card = page:create_selection_card(card_key, card_number, area)
 			card.cry_antimatter_sleeve_card = true
@@ -1537,6 +1529,3 @@ SMODS.RunSelectPage({
 		return s_choice == "sleeve_cry_antimatter_sleeve" or s_choice == "cry_antimatter_sleeve"
 	end,
 })
-
-
-
