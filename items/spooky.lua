@@ -192,7 +192,7 @@ local choco1 = {
 	loc_vars = function(self, info_queue, center)
 		info_queue[#info_queue + 1] = { set = "Other", key = self.key }
 		info_queue[#info_queue + 1] = { set = "Other", key = "cry_flickering_desc", specific_vars = { 5 } }
-		if G.P_CENTERS and G.P_CENTERS.j_cry_ghost then
+		if G.P_CENTERS.j_cry_ghost then
 			info_queue[#info_queue + 1] = G.P_CENTERS.j_cry_ghost
 		end
 	end,
@@ -271,15 +271,17 @@ local choco3 = {
 	end,
 	finish = function(self)
 		--Reverse all potion effects
-		if G.GAME.events[self.key].potions and G.GAME.events[self.key].potions[2] then
-			G.GAME.starting_params.ante_scaling = G.GAME.starting_params.ante_scaling
-				/ (1.15 ^ G.GAME.events[self.key].potions[2])
-		end
-		if G.GAME.events[self.key].potions and G.GAME.events[self.key].potions[3] then
-			G.GAME.round_resets.hands = G.GAME.round_resets.hands + G.GAME.events[self.key].potions[3]
-			ease_hands_played(G.GAME.events[self.key].potions[3])
-			G.GAME.round_resets.discards = G.GAME.round_resets.discards + G.GAME.events[self.key].potions[3]
-			ease_discard(G.GAME.events[self.key].potions[3])
+		if G.GAME.events[self.key] and G.GAME.events[self.key].potions then
+			if G.GAME.events[self.key].potions[2] then
+				G.GAME.starting_params.ante_scaling = G.GAME.starting_params.ante_scaling
+					/ (1.15 ^ G.GAME.events[self.key].potions[2])
+			end
+			if G.GAME.events[self.key].potions[3] then
+				G.GAME.round_resets.hands = G.GAME.round_resets.hands + G.GAME.events[self.key].potions[3]
+				ease_hands_played(G.GAME.events[self.key].potions[3])
+				G.GAME.round_resets.discards = G.GAME.round_resets.discards + G.GAME.events[self.key].potions[3]
+				ease_discard(G.GAME.events[self.key].potions[3])
+			end
 		end
 		G.GAME.events[self.key] = nil
 	end,
@@ -441,7 +443,7 @@ local choco4 = { --lunar abyss
 			and not context.retrigger_joker
 		then
 			local faces = 0
-			local cards = context.full_hand or (G.play and G.play.cards) or {}
+			local cards = context.full_hand or G.play.cards or {}
 			for i = 1, #cards do
 				if cards[i]:is_face() then
 					faces = faces + 1
