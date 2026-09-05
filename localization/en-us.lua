@@ -418,6 +418,37 @@ return {
 					"always draw at least {C:attention}5{} cards",
 				},
 			},
+			b_cry_e_deck_preview_antimatter = {
+				name = "Edition Deck",
+				text = {
+					"All cards will have an",
+					"{C:dark_edition}Edition{} of your choice",
+				},
+			},
+			b_cry_et_deck_preview_antimatter = {
+				name = "Enhancement Deck",
+				text = {
+					"All {C:attention}playing cards{}",
+					"will have an {C:attention}enhancement",
+					"of your choice",
+				},
+			},
+			b_cry_st_deck_preview_antimatter = {
+				name = "Suit Deck",
+				text = {
+					"All playing cards will be",
+					"a suit of your choice",
+					"{C:attention}Boss Blind{} for this suit",
+					"will not appear",
+				},
+			},
+			b_cry_sl_deck_preview_antimatter = {
+				name = "Seal Deck",
+				text = {
+					"All playing cards have",
+					"a {C:attention}Seal{} of your choice",
+				},
+			},
 		},
 		Blind = {
 			bl_cry_box = {
@@ -1401,9 +1432,10 @@ return {
 			j_cry_thalia = {
 				name = "Thalia and Melpomeme",
 				text = {
-					"{C:white,X:mult}X#1#{} Mult for every",
-					"pair of unique rarities",
-					"{C:inactive}(Currently {C:white,X:mult}X#2#{C:inactive}){}",
+					"{C:white,X:mult}X#1# {} Mult for every",
+					"{C:attention}unique pair {}of",
+					"{C:attention}held rarites",
+					"{C:inactive}(Currently {C:white,X:mult}X#2#{C:inactive} Mult)",
 				},
 			},
 			j_cry_keychange = {
@@ -1454,7 +1486,8 @@ return {
 				text = {
 					"Adjacent {C:chips}chips{}-modifying jokers",
 					"use the next highest {C:attention}operator{} for scoring",
-					"{C:inactive}(Caps at exponentiation)",
+					"{C:inactive}(ex. {C:chips}+80{C:inactive} -> {X:chips,C:white}X80{C:inactive}, {X:chips,C:white}X6{C:inactive} -> {X:talisman_echips,C:white}^6{C:inactive})",
+					"{C:inactive}(Caps at {X:talisman_echips,C:white}^Chips{C:inactive})",
 				},
 			},
 			j_cry_candy_basket = {

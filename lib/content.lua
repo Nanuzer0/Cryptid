@@ -979,6 +979,16 @@ SMODS.RunSelectPage({
 	start_run = function(self, choice)
 		G.GAME.cry_selected_edition = choice
 	end,
+	choose_random = function(self)
+		local options = {}
+		for _, v in ipairs(self.pool) do
+			if v.key ~= SMODS.RunSelect.Setup.choices[self.key] then
+				options[#options + 1] = v
+			end
+		end
+		local edition = pseudorandom_element(options, pseudoseed(os.time()))
+		self:handle_choice({ edition = { key = edition.key } })
+	end,
 })
 
 --Enhancement Deck selection
@@ -1126,7 +1136,13 @@ SMODS.RunSelectPage({
 		G.GAME.cry_selected_sticker = choice
 	end,
 	choose_random = function(self)
-		local sticker = pseudorandom_element(self.pool, pseudoseed(os.time()))
+		local options = {}
+		for _, v in ipairs(self.pool) do
+			if v.key ~= SMODS.RunSelect.Setup.choices[self.key] then
+				options[#options + 1] = v
+			end
+		end
+		local sticker = pseudorandom_element(options, pseudoseed(os.time()))
 		self:handle_choice({ ability = { _cry_sticker_choice = sticker.key } })
 	end,
 })
@@ -1200,7 +1216,13 @@ SMODS.RunSelectPage({
 		G.GAME.cry_selected_suit = choice
 	end,
 	choose_random = function(self)
-		local suit = pseudorandom_element(self.pool, pseudoseed(os.time()))
+		local options = {}
+		for _, v in ipairs(self.pool) do
+			if v.key ~= SMODS.RunSelect.Setup.choices[self.key] then
+				options[#options + 1] = v
+			end
+		end
+		local suit = pseudorandom_element(options, pseudoseed(os.time()))
 		self:handle_choice({ ability = { _cry_suit_choice = suit.key } })
 	end,
 })
@@ -1282,7 +1304,13 @@ SMODS.RunSelectPage({
 		G.GAME.cry_selected_seal = choice
 	end,
 	choose_random = function(self)
-		local seal = pseudorandom_element(self.pool, pseudoseed(os.time()))
+		local options = {}
+		for _, v in ipairs(self.pool) do
+			if v.key ~= SMODS.RunSelect.Setup.choices[self.key] then
+				options[#options + 1] = v
+			end
+		end
+		local seal = pseudorandom_element(options, pseudoseed(os.time()))
 		self:handle_choice({ seal = seal.key })
 	end,
 })
