@@ -692,13 +692,15 @@ SMODS.DrawStep({
 		then
 			card.children.center:draw_shader("debuff", nil, card.ARGS.send_to_shader)
 		end
+		local antimatter_choices = SMODS.RunSelect.Setup.choices.cry_antimatter
+			or SMODS.RunSelect.Setup.choices.antimatter
 		if
 			(
 				Cryptid.safe_get(card, "params", "run_select_selection_choice", 2) == "cry_antimatter"
 				or Cryptid.safe_get(card, "params", "run_select_selection_choice", 2) == "antimatter"
 			)
-			and SMODS.RunSelect.Setup.choices.antimatter
-			and not SMODS.RunSelect.Setup.choices.antimatter[card.config.center_key]
+			and antimatter_choices
+			and not antimatter_choices[card.config.center_key]
 			and not card.cry_antimatter_locked
 		then
 			card.children.back:draw_shader("debuff", nil, card.ARGS.send_to_shader, true)
