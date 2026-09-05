@@ -910,9 +910,8 @@ end
 --Edition Deck Selection
 SMODS.RunSelectPage({
 	key = "edeck_ed",
-	include_deck_preview = true,
+	automatic_preview = true,
 	page = 2,
-	area_type = "deck",
 	random_select = true,
 	generate_pool = function(self)
 		local pool = {}
@@ -965,15 +964,21 @@ SMODS.RunSelectPage({
 		return false
 	end,
 	handle_choice = function(self, choice, remove)
-		SMODS.RunSelect.Setup.choices[self.key] = SMODS.RunSelect.Setup.choices[self.key] or {}
+		SMODS.RunSelect.Setup.choices[self.key] = SMODS.RunSelect.Setup.choices[self.key] or "e_foil"
 		local val = choice.edition and choice.edition.key
 		if not val then
 			return
 		end
 		if not remove then
 			SMODS.RunSelect.Setup.choices[self.key] = val
+			if SMODS.RunSelect.Internals.preview_area then
+				SMODS.RunSelect.Functions.populate_preview_ui(self.key, val, self.silent)
+			end
 		else
 			SMODS.RunSelect.Setup.choices[self.key] = nil
+			if SMODS.RunSelect.Internals.preview_area then
+				SMODS.RunSelect.Functions.populate_preview_ui(self.key, choice, self.silent, true)
+			end
 		end
 	end,
 	start_run = function(self, choice)
@@ -994,9 +999,8 @@ SMODS.RunSelectPage({
 --Enhancement Deck selection
 SMODS.RunSelectPage({
 	key = "edeck_enh",
-	include_deck_preview = true,
+	automatic_preview = true,
 	page = 2,
-	area_type = "deck",
 	random_select = true,
 	generate_pool = function(self)
 		local pool = {}
@@ -1048,12 +1052,18 @@ SMODS.RunSelectPage({
 		return false
 	end,
 	handle_choice = function(self, choice, remove)
-		SMODS.RunSelect.Setup.choices[self.key] = SMODS.RunSelect.Setup.choices[self.key] or {}
+		SMODS.RunSelect.Setup.choices[self.key] = SMODS.RunSelect.Setup.choices[self.key] or "m_bonus"
 		local val = (choice.config and choice.config.center and choice.config.center.key)
 		if not remove then
 			SMODS.RunSelect.Setup.choices[self.key] = val
+			if SMODS.RunSelect.Internals.preview_area then
+				SMODS.RunSelect.Functions.populate_preview_ui(self.key, val, self.silent)
+			end
 		else
 			SMODS.RunSelect.Setup.choices[self.key] = nil
+			if SMODS.RunSelect.Internals.preview_area then
+				SMODS.RunSelect.Functions.populate_preview_ui(self.key, choice, self.silent, true)
+			end
 		end
 	end,
 	start_run = function(self, choice)
@@ -1064,9 +1074,8 @@ SMODS.RunSelectPage({
 -- Sticker Deck selection
 SMODS.RunSelectPage({
 	key = "edeck_sk",
-	include_deck_preview = true,
+	automatic_preview = true,
 	page = 2,
-	area_type = "deck",
 	random_select = true,
 	generate_pool = function(self)
 		local pool = {}
@@ -1124,12 +1133,18 @@ SMODS.RunSelectPage({
 		return false
 	end,
 	handle_choice = function(self, choice, remove)
-		SMODS.RunSelect.Setup.choices[self.key] = SMODS.RunSelect.Setup.choices[self.key] or {}
+		SMODS.RunSelect.Setup.choices[self.key] = SMODS.RunSelect.Setup.choices[self.key] or "eternal"
 		local val = (choice.ability and choice.ability._cry_sticker_choice)
 		if not remove then
 			SMODS.RunSelect.Setup.choices[self.key] = val
+			if SMODS.RunSelect.Internals.preview_area then
+				SMODS.RunSelect.Functions.populate_preview_ui(self.key, val, self.silent)
+			end
 		else
-			SMODS.RunSelect.Setup.choices[self.key][val] = nil
+			SMODS.RunSelect.Setup.choices[self.key] = nil
+			if SMODS.RunSelect.Internals.preview_area then
+				SMODS.RunSelect.Functions.populate_preview_ui(self.key, choice, self.silent, true)
+			end
 		end
 	end,
 	start_run = function(self, choice)
@@ -1150,9 +1165,8 @@ SMODS.RunSelectPage({
 -- Suit Deck selection
 SMODS.RunSelectPage({
 	key = "edeck_st",
-	include_deck_preview = true,
+	automatic_preview = true,
 	page = 2,
-	area_type = "deck",
 	random_select = true,
 	generate_pool = function(self)
 		local pool = {}
@@ -1208,8 +1222,14 @@ SMODS.RunSelectPage({
 		local val = choice.ability._cry_suit_choice
 		if not remove then
 			SMODS.RunSelect.Setup.choices[self.key] = val
+			if SMODS.RunSelect.Internals.preview_area then
+				SMODS.RunSelect.Functions.populate_preview_ui(self.key, val, self.silent)
+			end
 		else
 			SMODS.RunSelect.Setup.choices[self.key] = nil
+			if SMODS.RunSelect.Internals.preview_area then
+				SMODS.RunSelect.Functions.populate_preview_ui(self.key, choice, self.silent, true)
+			end
 		end
 	end,
 	start_run = function(self, choice)
@@ -1230,9 +1250,8 @@ SMODS.RunSelectPage({
 -- Seal Deck selection
 SMODS.RunSelectPage({
 	key = "edeck_sl",
-	include_deck_preview = true,
+	automatic_preview = true,
 	page = 2,
-	area_type = "deck",
 	random_select = true,
 	generate_pool = function(self)
 		local pool = {}
@@ -1289,15 +1308,18 @@ SMODS.RunSelectPage({
 		return false
 	end,
 	handle_choice = function(self, choice, remove)
-		SMODS.RunSelect.Setup.choices[self.key] = SMODS.RunSelect.Setup.choices[self.key] or {}
-		local val = (choice.ability and choice.ability._cry_seal_choice)
-			or choice.seal
-			or (choice.config and choice.config.center and choice.config.center.key)
-			or choice
+		SMODS.RunSelect.Setup.choices[self.key] = SMODS.RunSelect.Setup.choices[self.key] or "Gold"
+		local val = choice.seal
 		if not remove then
 			SMODS.RunSelect.Setup.choices[self.key] = val
+			if SMODS.RunSelect.Internals.preview_area then
+				SMODS.RunSelect.Functions.populate_preview_ui(self.key, val, self.silent)
+			end
 		else
 			SMODS.RunSelect.Setup.choices[self.key] = nil
+			if SMODS.RunSelect.Internals.preview_area then
+				SMODS.RunSelect.Functions.populate_preview_ui(self.key, choice, self.silent, true)
+			end
 		end
 	end,
 	start_run = function(self, choice)
