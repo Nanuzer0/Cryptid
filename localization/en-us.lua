@@ -1454,7 +1454,8 @@ return {
 				text = {
 					"Adjacent {C:chips}chips{}-modifying jokers",
 					"use the next highest {C:attention}operator{} for scoring",
-					"{C:inactive}(Caps at exponentiation)",
+					"{C:inactive}(ex. {C:chips}+80{C:inactive} -> {X:chips,C:white}X80{C:inactive}, {X:chips,C:white}X6{C:inactive} -> {X:talisman_echips,C:white}^6{C:inactive})",
+					"{C:inactive}(Caps at {X:talisman_echips,C:white}^Chips{C:inactive})",
 				},
 			},
 			j_cry_candy_basket = {
