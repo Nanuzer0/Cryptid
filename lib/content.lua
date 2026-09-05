@@ -1284,17 +1284,9 @@ SMODS.RunSelectPage({
 	end,
 	set_default = function(self, choice)
 		local selected = {}
-		if choice then
-			for k in pairs(choice) do
-				if Cryptid.antimatter_compat(k) then
-					selected[k] = true
-				end
-			end
-		else
-			for _, c in ipairs(G.P_CENTER_POOLS.Back) do
-				if Cryptid.antimatter_compat(c.key) then
-					selected[c.key] = true
-				end
+		for _, c in ipairs(G.P_CENTER_POOLS.Back) do
+			if Cryptid.antimatter_compat(c.key) then
+				selected[c.key] = not choice or choice[c.key] ~= false
 			end
 		end
 		return selected
@@ -1303,8 +1295,8 @@ SMODS.RunSelectPage({
 		if G.PROFILES[G.SETTINGS.profile].last_choices.deck_choice == "b_cry_antimatter" then
 			local curr = G.PROFILES[G.SETTINGS.profile].last_choices.cry_antimatter
 			local deck_total = 0
-			for k in pairs(curr or {}) do
-				if Cryptid.antimatter_compat(k) then
+			for k, v in pairs(curr or {}) do
+				if v == true and Cryptid.antimatter_compat(k) then
 					deck_total = deck_total + 1
 				end
 			end
@@ -1353,3 +1345,115 @@ SMODS.RunSelectPage({
 		end
 	end,
 })
+
+G.FUNCS.cry_antimatter_select_all = function(e)
+	local choices = SMODS.RunSelect.Setup.choices.cry_antimatter
+	for _, c in ipairs(SMODS.RunSelect.Pages.cry_antimatter.pool) do
+		if Cryptid.antimatter_compat(c.key) then
+			choices[c.key] = true
+		end
+	end
+	play_sound("paper1", 1, 0.5)
+	for _, area in ipairs(SMODS.RunSelect.Internals.select_areas) do
+		for _, card in ipairs(area.cards) do
+			if not card.cry_antimatter_locked then
+				card:juice_up(0.1, 0.05)
+			end
+		end
+	end
+end
+
+G.FUNCS.cry_antimatter_deselect_all = function(e)
+	local choices = SMODS.RunSelect.Setup.choices.cry_antimatter
+	for _, c in ipairs(SMODS.RunSelect.Pages.cry_antimatter.pool) do
+		if Cryptid.antimatter_compat(c.key) then
+			choices[c.key] = false
+		end
+	end
+	play_sound("paper1", 1, 0.5)
+	for _, area in ipairs(SMODS.RunSelect.Internals.select_areas) do
+		for _, card in ipairs(area.cards) do
+			if not card.cry_antimatter_locked then
+				card:juice_up(0.1, 0.05)
+			end
+		end
+	end
+end
+
+local create_page_ref = SMODS.RunSelect.Functions.create_page
+function SMODS.RunSelect.Functions.create_page(key)
+	local res = create_page_ref(key)
+	if key == "cry_antimatter" then
+		local previews = res.nodes[2]
+		previews.nodes[#previews.nodes + 1] = {
+			n = G.UIT.R,
+			config = { align = "cm", padding = 0.04 },
+			nodes = {
+				{
+					n = G.UIT.C,
+					config = {
+						maxw = 1.55,
+						minw = 1.55,
+						minh = 0.6,
+						r = 0.1,
+						hover = true,
+						button = "cry_antimatter_select_all",
+						colour = SMODS.RunSelect.Colours.nav_button,
+						align = "cm",
+						emboss = 0.1,
+					},
+					nodes = {
+						{
+							n = G.UIT.R,
+							config = { align = "cm" },
+							nodes = {
+								{
+									n = G.UIT.T,
+									config = {
+										text = localize("b_select_all"),
+										scale = 0.35,
+										colour = G.C.WHITE,
+										shadow = true,
+									},
+								},
+							},
+						},
+					},
+				},
+				{ n = G.UIT.C, config = { minw = 0.1 } },
+				{
+					n = G.UIT.C,
+					config = {
+						maxw = 1.55,
+						minw = 1.55,
+						minh = 0.6,
+						r = 0.1,
+						hover = true,
+						button = "cry_antimatter_deselect_all",
+						colour = SMODS.RunSelect.Colours.nav_button,
+						align = "cm",
+						emboss = 0.1,
+					},
+					nodes = {
+						{
+							n = G.UIT.R,
+							config = { align = "cm" },
+							nodes = {
+								{
+									n = G.UIT.T,
+									config = {
+										text = localize("b_deselect_all"),
+										scale = 0.3,
+										colour = G.C.WHITE,
+										shadow = true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		}
+	end
+	return res
+end
