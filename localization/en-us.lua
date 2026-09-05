@@ -1401,9 +1401,10 @@ return {
 			j_cry_thalia = {
 				name = "Thalia and Melpomeme",
 				text = {
-					"{C:white,X:mult}X#1#{} Mult for every",
-					"pair of unique rarities",
-					"{C:inactive}(Currently {C:white,X:mult}X#2#{C:inactive}){}",
+					"{C:white,X:mult}X#1# {} Mult for every",
+					"{C:attention}unique pair {}of",
+					"{C:attention}held rarites",
+					"{C:inactive}(Currently {C:white,X:mult}X#2#{C:inactive} Mult)",
 				},
 			},
 			j_cry_keychange = {
