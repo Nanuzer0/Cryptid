@@ -503,12 +503,7 @@ return {
 			if not G.SETTINGS.paused and not self.no_forced_seal and G.GAME.cry_lock_seal then
 				seal = G.GAME.modifiers.cry_force_seal or seal
 			end
-			return ss(
-				self,
-				seal,
-				y,
-				z
-			)
+			return ss(self, seal, y, z)
 		end
 		local cs = Card.change_suit
 		function Card:change_suit(new_suit)

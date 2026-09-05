@@ -448,7 +448,7 @@ return {
 					"All playing cards have",
 					"a {C:attention}Seal{} of your choice",
 				},
-			}
+			},
 		},
 		Blind = {
 			bl_cry_box = {
