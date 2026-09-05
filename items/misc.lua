@@ -1410,14 +1410,7 @@ local noisy = {
 						string = {
 							{ string = "rand()", colour = G.C.JOKER_GREY },
 							{
-								string = "#@"
-									.. (G.deck.cards[1] and G.deck.cards[#G.deck.cards].base.id or 11)
-									.. (
-										G.deck.cards[1]
-											and G.deck.cards[#G.deck.cards].base.suit
-											and G.deck.cards[#G.deck.cards].base.suit:sub(1, 1)
-										or "D"
-									),
+								string = "#@" .. (G.deck and G.deck.cards[1] and G.deck.cards[#G.deck.cards].base.id or 11) .. (G.deck and G.deck.cards[1] and G.deck.cards[#G.deck.cards].base.suit:sub(1, 1) or 'D'),
 								colour = G.C.RED,
 							},
 							loc_mult,
