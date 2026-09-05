@@ -950,10 +950,14 @@ SMODS.RunSelectPage({
 		end
 		if not remove then
 			SMODS.RunSelect.Setup.choices[self.key] = val
-			if SMODS.RunSelect.Internals.preview_area then SMODS.RunSelect.Functions.populate_preview_ui(self.key, val, self.silent) end
+			if SMODS.RunSelect.Internals.preview_area then
+				SMODS.RunSelect.Functions.populate_preview_ui(self.key, val, self.silent)
+			end
 		else
 			SMODS.RunSelect.Setup.choices[self.key] = nil
-			if SMODS.RunSelect.Internals.preview_area then SMODS.RunSelect.Functions.populate_preview_ui(self.key, choice, self.silent, true) end
+			if SMODS.RunSelect.Internals.preview_area then
+				SMODS.RunSelect.Functions.populate_preview_ui(self.key, choice, self.silent, true)
+			end
 		end
 	end,
 	start_run = function(self, choice)
@@ -1031,10 +1035,14 @@ SMODS.RunSelectPage({
 		local val = (choice.config and choice.config.center and choice.config.center.key)
 		if not remove then
 			SMODS.RunSelect.Setup.choices[self.key] = val
-			if SMODS.RunSelect.Internals.preview_area then SMODS.RunSelect.Functions.populate_preview_ui(self.key, val, self.silent) end
+			if SMODS.RunSelect.Internals.preview_area then
+				SMODS.RunSelect.Functions.populate_preview_ui(self.key, val, self.silent)
+			end
 		else
 			SMODS.RunSelect.Setup.choices[self.key] = nil
-			if SMODS.RunSelect.Internals.preview_area then SMODS.RunSelect.Functions.populate_preview_ui(self.key, choice, self.silent, true) end
+			if SMODS.RunSelect.Internals.preview_area then
+				SMODS.RunSelect.Functions.populate_preview_ui(self.key, choice, self.silent, true)
+			end
 		end
 	end,
 	start_run = function(self, choice)
@@ -1108,10 +1116,14 @@ SMODS.RunSelectPage({
 		local val = (choice.ability and choice.ability._cry_sticker_choice)
 		if not remove then
 			SMODS.RunSelect.Setup.choices[self.key] = val
-			if SMODS.RunSelect.Internals.preview_area then SMODS.RunSelect.Functions.populate_preview_ui(self.key, val, self.silent) end
+			if SMODS.RunSelect.Internals.preview_area then
+				SMODS.RunSelect.Functions.populate_preview_ui(self.key, val, self.silent)
+			end
 		else
 			SMODS.RunSelect.Setup.choices[self.key] = nil
-			if SMODS.RunSelect.Internals.preview_area then SMODS.RunSelect.Functions.populate_preview_ui(self.key, choice, self.silent, true) end
+			if SMODS.RunSelect.Internals.preview_area then
+				SMODS.RunSelect.Functions.populate_preview_ui(self.key, choice, self.silent, true)
+			end
 		end
 	end,
 	start_run = function(self, choice)
@@ -1189,10 +1201,14 @@ SMODS.RunSelectPage({
 		local val = choice.ability._cry_suit_choice
 		if not remove then
 			SMODS.RunSelect.Setup.choices[self.key] = val
-			if SMODS.RunSelect.Internals.preview_area then SMODS.RunSelect.Functions.populate_preview_ui(self.key, val, self.silent) end
+			if SMODS.RunSelect.Internals.preview_area then
+				SMODS.RunSelect.Functions.populate_preview_ui(self.key, val, self.silent)
+			end
 		else
 			SMODS.RunSelect.Setup.choices[self.key] = nil
-			if SMODS.RunSelect.Internals.preview_area then SMODS.RunSelect.Functions.populate_preview_ui(self.key, choice, self.silent, true) end
+			if SMODS.RunSelect.Internals.preview_area then
+				SMODS.RunSelect.Functions.populate_preview_ui(self.key, choice, self.silent, true)
+			end
 		end
 	end,
 	start_run = function(self, choice)
@@ -1275,10 +1291,14 @@ SMODS.RunSelectPage({
 		local val = choice.seal
 		if not remove then
 			SMODS.RunSelect.Setup.choices[self.key] = val
-			if SMODS.RunSelect.Internals.preview_area then SMODS.RunSelect.Functions.populate_preview_ui(self.key, val, self.silent) end
+			if SMODS.RunSelect.Internals.preview_area then
+				SMODS.RunSelect.Functions.populate_preview_ui(self.key, val, self.silent)
+			end
 		else
 			SMODS.RunSelect.Setup.choices[self.key] = nil
-			if SMODS.RunSelect.Internals.preview_area then SMODS.RunSelect.Functions.populate_preview_ui(self.key, choice, self.silent, true) end
+			if SMODS.RunSelect.Internals.preview_area then
+				SMODS.RunSelect.Functions.populate_preview_ui(self.key, choice, self.silent, true)
+			end
 		end
 	end,
 	start_run = function(self, choice)
