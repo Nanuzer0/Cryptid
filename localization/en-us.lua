@@ -418,6 +418,37 @@ return {
 					"always draw at least {C:attention}5{} cards",
 				},
 			},
+			b_cry_e_deck_preview_antimatter = {
+				name = "Edition Deck",
+				text = {
+					"All cards will have an",
+					"{C:dark_edition}Edition{} of your choice",
+				},
+			},
+			b_cry_et_deck_preview_antimatter = {
+				name = "Enhancement Deck",
+				text = {
+					"All {C:attention}playing cards{}",
+					"will have an {C:attention}enhancement",
+					"of your choice",
+				},
+			},
+			b_cry_st_deck_preview_antimatter = {
+				name = "Suit Deck",
+				text = {
+					"All playing cards will be",
+					"a suit of your choice",
+					"{C:attention}Boss Blind{} for this suit",
+					"will not appear",
+				},
+			},
+			b_cry_sl_deck_preview_antimatter = {
+				name = "Seal Deck",
+				text = {
+					"All playing cards have",
+					"a {C:attention}Seal{} of your choice",
+				},
+			}
 		},
 		Blind = {
 			bl_cry_box = {
