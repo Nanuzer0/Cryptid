@@ -4623,42 +4623,42 @@ return {
 		},
 		Other = {
 			random_edition = {
-				name = "Random",
+				name = "Randomized",
 				text = {
 					"Applies a random {C:dark_edition}edition{}",
 					"to every {C:attention}card{}",
 				},
 			},
 			random_enhancement = {
-				name = "Random",
+				name = "Randomized",
 				text = {
 					"Applies a random {C:attention}enhancement{}",
 					"to every {C:attention}playing card{}",
 				},
 			},
 			random_seal = {
-				name = "Random",
+				name = "Randomized",
 				text = {
 					"Applies a random {C:attention}seal{}",
 					"to every {C:attention}playing card{}",
 				},
 			},
 			random_sticker = {
-				name = "Random",
+				name = "Randomized",
 				text = {
 					"Applies a random {C:attention}sticker{}",
 					"to every {C:attention}card{}",
 				},
 			},
 			all_stickers = {
-				name = "All",
+				name = "Pain and suffering",
 				text = {
 					"Applies {C:attention}all stickers{}",
 					"to every {C:attention}card{}",
 				},
 			},
 			random_suit = {
-				name = "Random",
+				name = "Randomized",
 				text = {
 					"Applies a random {C:attention}suit{}",
 					"to every {C:attention}playing card{}",
