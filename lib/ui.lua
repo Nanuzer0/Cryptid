@@ -64,7 +64,23 @@ SMODS.DrawStep({
 			if back.key == "b_cry_sk_deck" then
 				local sk = get_edeck_sprite_key(in_run_setup, "sticker")
 				Cryptid.update_edeck_sprite(self, "sticker", sk)
-				if sk ~= "default" then
+				if sk == "all" then
+					for key, sticker in pairs(SMODS.Stickers) do
+						if type(sticker.draw) == "function" then
+							sticker:draw(self)
+						elseif G.shared_stickers[key] then
+							G.shared_stickers[key].role.draw_major = self
+							G.shared_stickers[key]:draw_shader("dissolve", nil, nil, true, self.children.center)
+							G.shared_stickers[key]:draw_shader(
+								"voucher",
+								nil,
+								self.ARGS.send_to_shader,
+								true,
+								self.children.center
+							)
+						end
+					end
+				elseif sk ~= "default" and sk ~= "random" then
 					if type(SMODS.Stickers[sk].draw) == "function" then
 						SMODS.Stickers[sk]:draw(self)
 					else
