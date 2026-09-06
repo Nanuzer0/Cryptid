@@ -509,25 +509,6 @@ local error_joker = {
 			},
 		}
 	end,
-	add_to_deck = function(self, card, from_debuff)
-		if G.GAME.modifiers.cry_force_edition and not G.GAME.modifiers.cry_force_edition_from_deck then
-			G.GAME.modifiers.cry_force_edition_from_deck = G.GAME.modifiers.cry_force_edition
-		elseif not G.GAME.modifiers.cry_force_edition_from_deck then
-			if G.P_CENTERS.e_cry_glitched then
-				G.GAME.modifiers.cry_force_edition = "e_cry_glitched"
-			else
-				G.GAME.modifiers.cry_force_edition = "e_foil"
-			end
-			G.GAME.modifiers.cry_force_edition_from_deck = "Nope!"
-		end
-	end,
-	remove_from_deck = function(self, card, from_debuff)
-		if G.GAME.modifiers.cry_force_edition_from_deck ~= "Nope!" then
-			G.GAME.modifiers.cry_force_edition = G.GAME.modifiers.cry_force_edition_from_deck
-		else
-			G.GAME.modifiers.cry_force_edition = nil
-		end
-	end,
 	calculate = function(self, card, context)
 		if
 			context.end_of_round

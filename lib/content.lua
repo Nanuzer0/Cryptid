@@ -1434,7 +1434,7 @@ SMODS.RunSelectPage({
 			end
 		end
 		local seal = pseudorandom_element(options, pseudoseed(os.time()))
-		self:handle_choice({ seal = seal.key })
+		self:handle_choice({ cry_edeck_choice = seal.key })
 	end,
 })
 
@@ -1458,7 +1458,7 @@ SMODS.RunSelectPage({
 		local selected = {}
 		if choice then
 			for k in pairs(choice) do
-				if Cryptid.antimatter_compat(k) then
+				if Cryptid.antimatter_compat(k) and choice[k] then
 					selected[k] = true
 				end
 			end
@@ -1476,7 +1476,7 @@ SMODS.RunSelectPage({
 			local curr = G.PROFILES[G.SETTINGS.profile].last_choices.cry_antimatter
 			local deck_total = 0
 			for k in pairs(curr or {}) do
-				if Cryptid.antimatter_compat(k) then
+				if Cryptid.antimatter_compat(k) and curr[k] then
 					deck_total = deck_total + 1
 				end
 			end
