@@ -263,7 +263,9 @@ function Card:set_ability(center, initial, delay_sprites)
 	setabilityref(self, center, initial, delay_sprites)
 	self.ignore_base_shader = self.ignore_base_shader or {}
 	self.ignore_shadow = self.ignore_shadow or {}
-	if G.SETTINGS.paused then return end
+	if G.SETTINGS.paused then
+		return
+	end
 	local function repeatcheck(comp, table)
 		for _, v in ipairs(table) do
 			if comp == v then

@@ -2408,7 +2408,10 @@ local demicolon = {
 							n = G.UIT.C,
 							config = { ref_table = card, align = "m", colour = bg_colour, r = 0.05, padding = 0.08 },
 							nodes = {
-								{ n = G.UIT.T, config = { text = txt, colour = G.C.UI.TEXT_LIGHT, scale = 0.32 * 0.8 } },
+								{
+									n = G.UIT.T,
+									config = { text = txt, colour = G.C.UI.TEXT_LIGHT, scale = 0.32 * 0.8 },
+								},
 							},
 						},
 					},

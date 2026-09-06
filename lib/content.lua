@@ -899,7 +899,7 @@ SMODS.RunSelectPage({
 				pool[#pool + 1] = c
 			end
 		end
-		pool[#pool+1] = { key = "random" }
+		pool[#pool + 1] = { key = "random" }
 		return pool
 	end,
 	quick_start_text = function()
@@ -938,8 +938,10 @@ SMODS.RunSelectPage({
 			card:set_edition(card_key, true, true)
 		end
 		if card_key == "random" then
-			card.generate_UIBox_ability_table = function (self2, vars_only)
-				if vars_only then return end
+			card.generate_UIBox_ability_table = function(self2, vars_only)
+				if vars_only then
+					return
+				end
 				return generate_card_ui({ set = "Other", key = "random_edition" }, nil, nil, "Other", {})
 			end
 		end
@@ -1004,7 +1006,7 @@ SMODS.RunSelectPage({
 				pool[#pool + 1] = c
 			end
 		end
-		pool[#pool+1] = { key = "random" }
+		pool[#pool + 1] = { key = "random" }
 		return pool
 	end,
 	quick_start_text = function()
@@ -1027,7 +1029,8 @@ SMODS.RunSelectPage({
 		})
 	end,
 	set_default = function(self, choice)
-		return (Cryptid.safe_get(G.P_CENTERS, choice, "set") == "Enhanced" or choice == "random") and choice or "m_bonus"
+		return (Cryptid.safe_get(G.P_CENTERS, choice, "set") == "Enhanced" or choice == "random") and choice
+			or "m_bonus"
 	end,
 	selected_text = function(self, selection)
 		if selection == "random" then
@@ -1042,8 +1045,10 @@ SMODS.RunSelectPage({
 		if card_key == "random" then
 			card.children.center.atlas = G.ASSET_ATLAS[sprites.default.atlas]
 			card.children.center:set_sprite_pos(sprites.default.pos)
-			card.generate_UIBox_ability_table = function (self2, vars_only)
-				if vars_only then return end
+			card.generate_UIBox_ability_table = function(self2, vars_only)
+				if vars_only then
+					return
+				end
 				return generate_card_ui({ set = "Other", key = "random_enhancement" }, nil, nil, "Other", {})
 			end
 		end
@@ -1105,8 +1110,8 @@ SMODS.RunSelectPage({
 				pool[#pool + 1] = SMODS.Stickers[c]
 			end
 		end
-		pool[#pool+1] = { key = "random" }
-		pool[#pool+1] = { key = "all" }
+		pool[#pool + 1] = { key = "random" }
+		pool[#pool + 1] = { key = "all" }
 		return pool
 	end,
 	quick_start_text = function()
@@ -1152,15 +1157,19 @@ SMODS.RunSelectPage({
 			card:add_sticker(card_key, true)
 		end
 		if card_key == "random" then
-			card.generate_UIBox_ability_table = function (self2, vars_only)
-				if vars_only then return end
+			card.generate_UIBox_ability_table = function(self2, vars_only)
+				if vars_only then
+					return
+				end
 				return generate_card_ui({ set = "Other", key = "random_sticker" }, nil, nil, "Other", {})
 			end
 			card.children.center.atlas = G.ASSET_ATLAS[sprites.default.atlas]
 			card.children.center:set_sprite_pos(sprites.default.pos)
 		elseif card_key == "all" then
-			card.generate_UIBox_ability_table = function (self2, vars_only)
-				if vars_only then return end
+			card.generate_UIBox_ability_table = function(self2, vars_only)
+				if vars_only then
+					return
+				end
 				return generate_card_ui({ set = "Other", key = "all_stickers" }, nil, nil, "Other", {})
 			end
 			for _, sticker in pairs(SMODS.Stickers) do
@@ -1314,7 +1323,7 @@ SMODS.RunSelectPage({
 				pool[#pool + 1] = G.P_SEALS[c]
 			end
 		end
-		pool[#pool+1] = { key = "random" }
+		pool[#pool + 1] = { key = "random" }
 		return pool
 	end,
 	quick_start_text = function()
@@ -1354,8 +1363,10 @@ SMODS.RunSelectPage({
 			card:set_seal(card_key, true, true)
 		end
 		if card_key == "random" then
-			card.generate_UIBox_ability_table = function (self2, vars_only)
-				if vars_only then return end
+			card.generate_UIBox_ability_table = function(self2, vars_only)
+				if vars_only then
+					return
+				end
 				return generate_card_ui({ set = "Other", key = "random_seal" }, nil, nil, "Other", {})
 			end
 			card.children.center.atlas = G.ASSET_ATLAS[sprites.default.atlas]

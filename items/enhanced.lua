@@ -23,7 +23,7 @@ Cryptid.edeck_sprites = {
 		e_cry_noisy = { atlas = "cry_atlaseditiondeck", pos = { x = 1, y = 2 } },
 		e_cry_astral = { atlas = "cry_atlaseditiondeck", pos = { x = 2, y = 2 } },
 		e_cry_m = { atlas = "cry_atlaseditiondeck", pos = { x = 3, y = 2 } },
-		random = { atlas = "cry_atlaseditiondeck", pos = { x = 4, y = 1 }},
+		random = { atlas = "cry_atlaseditiondeck", pos = { x = 4, y = 1 } },
 	},
 	enhancement = {
 		order = 2,
@@ -112,7 +112,8 @@ local e_deck = {
 		local edition = Cryptid.enhanced_deck_info(self)
 		return {
 			vars = {
-				edition == "random" and localize("run_select_cry_edeck_ed_random") or localize({ type = "name_text", set = "Edition", key = edition }),
+				edition == "random" and localize("run_select_cry_edeck_ed_random")
+					or localize({ type = "name_text", set = "Edition", key = edition }),
 				colours = {
 					edition == "random" and G.C.DARK_EDITION
 						or (G.P_CENTERS[edition] and G.P_CENTERS[edition].badge_colour or G.C.DARK_EDITION),
@@ -273,7 +274,9 @@ local sk_deck = {
 		local _, _, sticker = Cryptid.enhanced_deck_info(self)
 		return {
 			vars = {
-				sticker == "random" and localize("run_select_cry_edeck_sk_random") or sticker == "all" and localize("run_select_cry_edeck_sk_all") or localize({
+				sticker == "random" and localize("run_select_cry_edeck_sk_random") or sticker == "all" and localize(
+					"run_select_cry_edeck_sk_all"
+				) or localize({
 					type = "name_text",
 					set = "Other",
 					key = sticker == "pinned" and "pinned_left" or sticker,
