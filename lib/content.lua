@@ -1413,7 +1413,7 @@ SMODS.RunSelectPage({
 			end
 		end
 		local seal = pseudorandom_element(options, pseudoseed(os.time()))
-		self:handle_choice({ seal = seal.key })
+		self:handle_choice({ cry_edeck_choice = seal.key })
 	end,
 })
 
