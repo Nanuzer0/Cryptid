@@ -2383,26 +2383,38 @@ local demicolon = {
 	config = { check = nil },
 	immutable = true,
 	loc_vars = function(self, info_queue, card)
-		if G.STAGE ~= G.STAGES.RUN or card.area ~= G.jokers then return end -- False if nil
-        local other_joker = G.jokers.cards[card.rank + 1]
-        local compatible = other_joker and Cryptid.demicolonGetTriggerable(other_joker)[1]
+		if G.STAGE ~= G.STAGES.RUN or card.area ~= G.jokers then
+			return
+		end -- False if nil
+		local other_joker = G.jokers.cards[card.rank + 1]
+		local compatible = other_joker and Cryptid.demicolonGetTriggerable(other_joker)[1]
 
-        local bg_colour, txt
-        if compatible then
-            bg_colour = G.C.RARITY.cry_epic
-            txt = localize("k_compatible")
-        else
-            bg_colour = G.C.JOKER_GREY
-            txt = localize("k_incompatible")
-        end
+		local bg_colour, txt
+		if compatible then
+			bg_colour = G.C.RARITY.cry_epic
+			txt = localize("k_compatible")
+		else
+			bg_colour = G.C.JOKER_GREY
+			txt = localize("k_incompatible")
+		end
 
-        return { main_end = {
-            { n=G.UIT.C, config={ align="bm", minh=0.4 }, nodes={
-                { n=G.UIT.C, config={ ref_table=card, align="m", colour=bg_colour, r=0.05, padding=0.08, }, nodes={
-                    { n=G.UIT.T, config={ text = txt, colour = G.C.UI.TEXT_LIGHT, scale = 0.32 * 0.8 } }
-                }}
-            }}
-        }}
+		return {
+			main_end = {
+				{
+					n = G.UIT.C,
+					config = { align = "bm", minh = 0.4 },
+					nodes = {
+						{
+							n = G.UIT.C,
+							config = { ref_table = card, align = "m", colour = bg_colour, r = 0.05, padding = 0.08 },
+							nodes = {
+								{ n = G.UIT.T, config = { text = txt, colour = G.C.UI.TEXT_LIGHT, scale = 0.32 * 0.8 } },
+							},
+						},
+					},
+				},
+			},
+		}
 	end,
 	calculate = function(self, card, context)
 		if context.joker_main and not context.blueprint then
