@@ -1437,7 +1437,7 @@ SMODS.RunSelectPage({
 		local selected = {}
 		if choice then
 			for k in pairs(choice) do
-				if Cryptid.antimatter_compat(k) then
+				if Cryptid.antimatter_compat(k) and choice[k] then
 					selected[k] = true
 				end
 			end
@@ -1455,7 +1455,7 @@ SMODS.RunSelectPage({
 			local curr = G.PROFILES[G.SETTINGS.profile].last_choices.cry_antimatter
 			local deck_total = 0
 			for k in pairs(curr or {}) do
-				if Cryptid.antimatter_compat(k) then
+				if Cryptid.antimatter_compat(k) and curr[k] then
 					deck_total = deck_total + 1
 				end
 			end
