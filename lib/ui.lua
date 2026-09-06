@@ -54,7 +54,9 @@ SMODS.DrawStep({
 					local shader = G.SHADERS[ed:sub(3)] and ed:sub(3)
 						or Cryptid.safe_get(G.P_CENTERS, ed, "shader")
 						or nil
-					self.children.back:draw_shader(shader, nil, self.ARGS.send_to_shader, true)
+					if shader then --because shader can be `false`
+						self.children.back:draw_shader(shader, nil, self.ARGS.send_to_shader, true)
+					end
 				end
 			end
 			if back.key == "b_cry_et_deck" then
