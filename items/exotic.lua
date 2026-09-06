@@ -1455,7 +1455,7 @@ local formidiulosus = {
 			vars = {
 				center.ability.immutable.num_candies,
 				center.ability.extra.Emult_mod,
-				1 + center.ability.extra.Emult_mod*#Cryptid.advanced_find_joker(nil, "cry_candy", nil, nil, true),
+				1 + center.ability.extra.Emult_mod * #Cryptid.advanced_find_joker(nil, "cry_candy", nil, nil, true),
 			},
 		}
 	end,
@@ -1485,26 +1485,28 @@ local formidiulosus = {
 		end
 		if context.ending_shop then
 			for i = 1, card.ability.immutable.num_candies do
-				SMODS.add_card{
+				SMODS.add_card({
 					set = "Joker",
 					rarity = "cry_candy",
 					key_append = "cry_trick_candy",
-				}
+				})
 				return { message = localize("k_plus_joker"), colour = G.C.RARITY.cry_candy }
 			end
 		end
 		if context.joker_main then
 			return {
-				emult = lenient_bignum(1 + card.ability.extra.Emult_mod*#Cryptid.advanced_find_joker(nil, "cry_candy", nil, nil, true)),
+				emult = lenient_bignum(
+					1 + card.ability.extra.Emult_mod * #Cryptid.advanced_find_joker(nil, "cry_candy", nil, nil, true)
+				),
 			}
 		end
 		if context.forcetrigger then
 			for i = 1, card.ability.immutable.num_candies do
-				SMODS.add_card{
+				SMODS.add_card({
 					set = "Joker",
 					rarity = "cry_candy",
 					key_append = "cry_trick_candy",
-				}
+				})
 			end
 			return {
 				emult = lenient_bignum(card.ability.extra.Emult),
