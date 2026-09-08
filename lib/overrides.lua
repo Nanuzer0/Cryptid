@@ -1602,7 +1602,7 @@ function Card:can_use_consumeable(any_state, skip_check)
 	if not self.ability.consumeable then
 		return false
 	end
-	if self.cry_ccd then
+	if not Cryptid_config.ccd_as_enhancement and self.cry_ccd then
 		local old_c = self.config.center
 		local old_a = self.ability
 		self.config.center = self.cry_ccd.center
@@ -1618,7 +1618,7 @@ end
 
 local cur_use_ref = Card.use_consumeable
 function Card:use_consumeable(area, copier)
-	if self.cry_ccd then
+	if not Cryptid_config.ccd_as_enhancement and self.cry_ccd then
 		local old_c = self.config.center
 		local old_a = self.ability
 		self.config.center = self.cry_ccd.center
@@ -1646,7 +1646,7 @@ end
 
 local check_use_ref = Card.check_use
 function Card:check_use()
-	if self.cry_ccd then
+	if not Cryptid_config.ccd_as_enhancement and self.cry_ccd then
 		local old_c = self.config.center
 		local old_a = self.ability
 		self.config.center = self.cry_ccd.center
@@ -1987,7 +1987,7 @@ function Card:save()
 	if self.cry_from_shop then
 		saved_table.cry_from_shop = self.cry_from_shop
 	end
-	if self.cry_ccd and self.cry_ccd.center then
+	if not Cryptid_config.ccd_as_enhancement and self.cry_ccd and self.cry_ccd.center then
 		saved_table.cry_ccd = self.cry_ccd.center.key
 		saved_table.cry_ccd_ability = copy_table(self.cry_ccd.ability)
 	end
@@ -2014,7 +2014,7 @@ function Card:load(cardTable, other_card)
 	if cardTable.cry_from_shop then
 		self.cry_from_shop = cardTable.cry_from_shop
 	end
-	if cardTable.cry_ccd and G.P_CENTERS[cardTable.cry_ccd] then
+	if not Cryptid_config.ccd_as_enhancement and cardTable.cry_ccd and G.P_CENTERS[cardTable.cry_ccd] then
 		Cryptid.set_ccd(self, G.P_CENTERS[cardTable.cry_ccd])
 		if cardTable.cry_ccd_ability and self.cry_ccd then
 			self.cry_ccd.ability = cardTable.cry_ccd_ability
@@ -2026,7 +2026,7 @@ end
 local copy_card_ref = copy_card
 function copy_card(other, new_card, card_scale, playing_card, strip_edition)
 	local ret = copy_card_ref(other, new_card, card_scale, playing_card, strip_edition)
-	if other and other.cry_ccd and other.cry_ccd.center then
+	if not Cryptid_config.ccd_as_enhancement and other and other.cry_ccd and other.cry_ccd.center then
 		Cryptid.set_ccd(ret, other.cry_ccd.center)
 		if other.cry_ccd.ability then
 			ret.cry_ccd.ability = copy_table(other.cry_ccd.ability)
@@ -2643,7 +2643,11 @@ end
 local set_abil_ref = Card.set_ability
 function Card:set_ability(center, initial, delay_sprites)
 	set_abil_ref(self, center, initial, delay_sprites)
-	if self.cry_ccd then
+	if Cryptid_config.ccd_as_enhancement then
+		if self.cry_ccd then
+			Cryptid.remove_ccd(self)
+		end
+	elseif self.cry_ccd then
 		self.ability.consumeable = self.cry_ccd.ability.consumeable
 	end
 	if self.config.center_key == "j_cry_meteor" then

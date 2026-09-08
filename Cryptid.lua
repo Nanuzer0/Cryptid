@@ -9,6 +9,9 @@ end
 local mod_path = "" .. SMODS.current_mod.path -- this path changes when each mod is loaded, but the local variable will retain Cryptid's path
 Cryptid.path = mod_path
 Cryptid_config = SMODS.current_mod.config or {} --is this nil check needed? idk but i saw crash reports related to this
+if Cryptid_config.ccd_as_enhancement == nil then
+	Cryptid_config.ccd_as_enhancement = false
+end
 
 -- Lovely Patch Target, toggles being able to change gameset config. Here for mod support
 Cryptid_config.gameset_toggle = true
@@ -452,6 +455,26 @@ local cryptidConfigTab = function()
 			ref_value = "joker_display",
 		})
 	end
+	local ccd_toggle = create_toggle({
+		label = localize("cry_ccd_as_enhancement"),
+		active_colour = HEX("8954bf"),
+		ref_table = Cryptid_config,
+		ref_value = "ccd_as_enhancement",
+		callback = function(val)
+			if Cryptid.has_ongoing_run() then
+				Cryptid_config.ccd_as_enhancement = not val
+			end
+		end,
+	})
+	if has_ongoing_run then
+		local button_node = ccd_toggle.nodes[2].nodes[1].nodes[1]
+		button_node.config.button = nil
+		button_node.config.hover = false
+		button_node.config.outline_colour = G.C.UI.BACKGROUND_INACTIVE
+		local label_node = ccd_toggle.nodes[1].nodes[1]
+		label_node.config.colour = G.C.UI.TEXT_INACTIVE
+	end
+	cry_nodes[#cry_nodes + 1] = ccd_toggle
 	cry_nodes[#cry_nodes + 1] = UIBox_button({
 		colour = has_ongoing_run and G.C.UI.BACKGROUND_INACTIVE or G.C.CRY_ALTGREENGRADIENT,
 		button = has_ongoing_run and "nil" or "reset_gameset_config",

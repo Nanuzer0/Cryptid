@@ -381,6 +381,14 @@ function Cryptid.set_ccd(card, consumable_center)
 		return
 	end
 
+	if Cryptid_config.ccd_as_enhancement then
+		if card.cry_ccd then
+			Cryptid.remove_ccd(card)
+		end
+		card:set_ability(consumable_center, true, nil)
+		return
+	end
+
 	local ability_tbl = {
 		name = consumable_center.name,
 		effect = consumable_center.effect,
@@ -424,6 +432,12 @@ end
 
 function Cryptid.remove_ccd(card)
 	if not card then
+		return
+	end
+	if Cryptid_config.ccd_as_enhancement then
+		if SMODS.ConsumableTypes[card.ability.set] then
+			card:set_ability(G.P_CENTERS.c_base)
+		end
 		return
 	end
 	card.cry_ccd = nil

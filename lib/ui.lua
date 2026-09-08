@@ -539,7 +539,7 @@ SMODS.DrawStep({
 	key = "ccd_interceptor",
 	order = -5,
 	func = function(self)
-		if self.cry_ccd and self.facing == "front" then
+		if not Cryptid_config.ccd_as_enhancement and self.cry_ccd and self.facing == "front" then
 			if not self.children.cry_ccd_sprite then
 				local atlas = G.ASSET_ATLAS[self.cry_ccd.center.atlas or self.cry_ccd.center.set]
 					or G.ASSET_ATLAS["Tarot"]
@@ -581,7 +581,7 @@ SMODS.DrawStep({
 if SMODS.DrawSteps and SMODS.DrawSteps.edition then
 	local orig_edition_draw = SMODS.DrawSteps.edition.func
 	SMODS.DrawSteps.edition.func = function(self, layer)
-		if not self.cry_ccd then
+		if Cryptid_config.ccd_as_enhancement or not self.cry_ccd then
 			return orig_edition_draw(self, layer)
 		end
 

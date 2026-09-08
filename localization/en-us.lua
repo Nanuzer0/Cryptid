@@ -5404,6 +5404,7 @@ return {
 			cry_force_tooltips = "Force Tooltips",
 			cry_family = "Family Friendly Mode",
 			cry_experimental = "Experimental Mode",
+			cry_ccd_as_enhancement = "CCD as Enhancement",
 
 			k_cry_program_pack = "Program Pack",
 			k_cry_meme_pack = "Meme Pack",

@@ -54,7 +54,7 @@ pattern = '''if center.consumeable then
 	self.ability.consumeable = center.config'''
 position = "after"
 payload = '''
-elseif not self.cry_ccd then
+elseif not self.cry_ccd or Cryptid_config.ccd_as_enhancement then
 	self.ability.consumeable = nil
 '''
 match_indent = true
@@ -125,7 +125,7 @@ target = "card.lua"
 pattern = '''return generate_card_ui(self.config.center, nil, loc_vars, card_type, badges, hide_desc, main_start, main_end, self)'''
 position = "before"
 payload = '''
-if self.cry_ccd then
+if not Cryptid_config.ccd_as_enhancement and self.cry_ccd then
 	badges = badges or {}
 	badges[#badges + 1] = 'cry_ccd'
 end
@@ -147,7 +147,7 @@ target = "functions/common_events.lua"
 pattern = "if v == 'pinned_left' then info_queue[#info_queue+1] = {key = 'pinned_left', set = 'Other'} end"
 position = "after"
 payload = '''
-if v == 'cry_ccd' and card and card.cry_ccd and card.cry_ccd.center then
+if v == 'cry_ccd' and not Cryptid_config.ccd_as_enhancement and card and card.cry_ccd and card.cry_ccd.center then
 	info_queue[#info_queue + 1] = card.cry_ccd.center
 end
 '''
