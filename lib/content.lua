@@ -1142,7 +1142,11 @@ SMODS.RunSelectPage({
 			return
 		end
 		local curr = G.PROFILES[G.SETTINGS.profile].last_choices.cry_edeck_sk
-		if (not SMODS.Stickers[curr] or SMODS.Stickers[curr].no_edeck or Cryptid.enabled(curr) ~= true) and curr ~= "all" and curr ~= "random" then
+		if
+			(not SMODS.Stickers[curr] or SMODS.Stickers[curr].no_edeck or Cryptid.enabled(curr) ~= true)
+			and curr ~= "all"
+			and curr ~= "random"
+		then
 			G.PROFILES[G.SETTINGS.profile].last_choices.cry_edeck_sk = "eternal"
 		end
 		if curr == "all" then
@@ -1157,7 +1161,13 @@ SMODS.RunSelectPage({
 		})
 	end,
 	set_default = function(self, choice)
-		return ((SMODS.Stickers[choice] and not SMODS.Stickers[choice].no_edeck and Cryptid.enabled(choice) == true) or choice == "all" or choice == "random") and choice or "eternal"
+		return (
+			(SMODS.Stickers[choice] and not SMODS.Stickers[choice].no_edeck and Cryptid.enabled(choice) == true)
+			or choice == "all"
+			or choice == "random"
+		)
+				and choice
+			or "eternal"
 	end,
 	selected_text = function(self, selection)
 		if selection == "all" then
