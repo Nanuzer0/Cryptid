@@ -12,6 +12,9 @@ Cryptid_config = SMODS.current_mod.config or {} --is this nil check needed? idk 
 if Cryptid_config.ccd_as_enhancement == nil then
 	Cryptid_config.ccd_as_enhancement = false
 end
+if Cryptid_config.ghost_mechanics == nil then
+	Cryptid_config.ghost_mechanics = true
+end
 
 -- Lovely Patch Target, toggles being able to change gameset config. Here for mod support
 Cryptid_config.gameset_toggle = true
@@ -492,6 +495,19 @@ G.FUNCS.cry_ccd_behavior_callback = function(args)
 	end
 end
 
+G.FUNCS.cry_ghost_mechanics_callback = function(args)
+	if Cryptid.has_ongoing_run() then
+		return
+	end
+	Cryptid_config.ghost_mechanics = ((args.to_key or args.cycle_config.current_option) == 1)
+	if SMODS.Mods and SMODS.Mods["Cryptid"] then
+		SMODS.save_mod_config(SMODS.Mods["Cryptid"])
+	end
+	if Cryptid.update_obj_registry then
+		Cryptid.update_obj_registry()
+	end
+end
+
 local cryptidTabs = function()
 	return {
 		{
@@ -571,7 +587,40 @@ local cryptidTabs = function()
 					middle_box.config.colour = G.C.UI.BACKGROUND_INACTIVE
 					middle_box.config.hover = false
 				end
-				local settings = { n = G.UIT.C, config = { align = "tm", padding = 0.05 }, nodes = { cycle } }
+				local ghost_cycle = create_option_cycle({
+					options = localize("ml_shadow_opt"),
+					w = 4.5,
+					cycle_shoulders = false,
+					opt_callback = "cry_ghost_mechanics_callback",
+					current_option = Cryptid_config.ghost_mechanics and 1 or 2,
+					colour = has_ongoing_run and G.C.UI.BACKGROUND_INACTIVE or HEX("8954bf"),
+					label = localize("cry_ghost_mechanics"),
+					info = { localize("cry_ghost_mechanics_desc") },
+					scale = 0.8,
+				})
+				if has_ongoing_run then
+					local label_node = ghost_cycle.nodes[1].nodes[1]
+					label_node.config.colour = G.C.UI.TEXT_INACTIVE
+
+					local inner_t = ghost_cycle.nodes[2].nodes[1]
+					local left_arrow = inner_t.nodes[1]
+					local middle_box = inner_t.nodes[2]
+					local right_arrow = inner_t.nodes[3]
+
+					left_arrow.config.button = nil
+					left_arrow.config.hover = false
+					left_arrow.config.colour = G.C.BLACK
+					left_arrow.nodes[1].config.colour = G.C.UI.TEXT_INACTIVE
+
+					right_arrow.config.button = nil
+					right_arrow.config.hover = false
+					right_arrow.config.colour = G.C.BLACK
+					right_arrow.nodes[1].config.colour = G.C.UI.TEXT_INACTIVE
+
+					middle_box.config.colour = G.C.UI.BACKGROUND_INACTIVE
+					middle_box.config.hover = false
+				end
+				local settings = { n = G.UIT.C, config = { align = "tm", padding = 0.05 }, nodes = { cycle, ghost_cycle } }
 				local config = { n = G.UIT.R, config = { align = "tm", padding = 0 }, nodes = { settings } }
 				cry_nodes[#cry_nodes + 1] = config
 				return {

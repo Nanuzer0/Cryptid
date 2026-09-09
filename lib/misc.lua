@@ -317,7 +317,7 @@ end
 function Cryptid.poll_random_sticker(_seed)
 	local pool = {}
 	for _, c in ipairs(SMODS.Sticker.obj_buffer) do
-		if not SMODS.Stickers[c].no_edeck then
+		if not SMODS.Stickers[c].no_edeck and Cryptid.enabled(c) == true then
 			pool[#pool + 1] = c
 		end
 	end
@@ -842,7 +842,7 @@ function Cryptid.enhanced_deck_info(deck)
 	-- Do Stuff
 	edition = (edition == "random" or Cryptid.safe_get(G.P_CENTERS, edition)) and edition or "e_foil"
 	enhancement = (enhancement == "random" or Cryptid.safe_get(G.P_CENTERS, enhancement)) and enhancement or "m_bonus"
-	sticker = (sticker == "random" or sticker == "all" or Cryptid.safe_get(SMODS.Stickers, sticker)) and sticker
+	sticker = (sticker == "random" or sticker == "all" or (Cryptid.safe_get(SMODS.Stickers, sticker) and not SMODS.Stickers[sticker].no_edeck and Cryptid.enabled(sticker) == true)) and sticker
 		or "eternal"
 	suit = (suit == "random" or Cryptid.safe_get(SMODS.Suits, suit)) and suit or "Spades"
 	seal = (seal == "random" or Cryptid.safe_get(G.P_SEALS, seal)) and seal or "Gold"

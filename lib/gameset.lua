@@ -963,6 +963,7 @@ function Cryptid.enabled(key, iter)
 		or card.gameset_config
 			and card.gameset_config[Cryptid.gameset(card)]
 			and card.gameset_config[Cryptid.gameset(card)].disabled
+		or (not Cryptid_config.ghost_mechanics and (key == "j_cry_ghost" or key == "ghost" or key == "cry_possessed" or key == "possessed" or key == "ev_cry_choco1" or key == "choco1"))
 	then
 		return { type = "manual" }
 	end
@@ -997,11 +998,11 @@ end
 function Cryptid.get_center(key, m)
 	if not m then
 		-- check for non game objects
-		if SMODS.Seals.obj_table and SMODS.Seals.obj_table[key] then
-			return SMODS.Seals.obj_table[key]
+		if SMODS.Seals and (SMODS.Seals[key] or (SMODS.Seals.obj_table and SMODS.Seals.obj_table[key])) then
+			return SMODS.Seals[key] or SMODS.Seals.obj_table[key]
 		end
-		if SMODS.Stickers.obj_table and SMODS.Stickers.obj_table[key] then
-			return SMODS.Stickers.obj_table[key]
+		if SMODS.Stickers and (SMODS.Stickers[key] or (SMODS.Stickers.obj_table and SMODS.Stickers.obj_table[key])) then
+			return SMODS.Stickers[key] or SMODS.Stickers.obj_table[key]
 		end
 		m = SMODS.GameObject
 		if m.subclasses then
@@ -1039,6 +1040,23 @@ end
 SMODS.GameObject.enable = function(self)
 	if self.cry_disabled then
 		self.cry_disabled = nil
+	end
+end
+
+---@type fun(self: SMODS.Sticker|table, reason: table)?
+SMODS.Sticker._disable = function(self, reason)
+	if not self.cry_disabled then
+		SMODS.GameObject._disable(self, reason)
+		self.cry_was_no_edeck = self.no_edeck
+		self.no_edeck = true
+	end
+end
+---@type fun(self: SMODS.Sticker|table)?
+SMODS.Sticker.enable = function(self)
+	if self.cry_disabled then
+		SMODS.GameObject.enable(self)
+		self.no_edeck = self.cry_was_no_edeck
+		self.cry_was_no_edeck = nil
 	end
 end
 

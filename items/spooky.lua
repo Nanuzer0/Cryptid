@@ -160,7 +160,8 @@ local choco_dice = {
 			if prev_ev then
 				prev_ev:finish()
 			end
-			card.ability.extra.roll = Cryptid.roll("cry_choco", 1, 10, { ignore_value = card.ability.extra.roll })
+			local min_roll = Cryptid_config.ghost_mechanics and 1 or 2
+			card.ability.extra.roll = Cryptid.roll("cry_choco", min_roll, 10, { ignore_value = card.ability.extra.roll })
 			local next_ev = SMODS.Events["ev_cry_choco" .. card.ability.extra.roll]
 			if next_ev then
 				next_ev:start()
@@ -192,11 +193,14 @@ local choco1 = {
 	loc_vars = function(self, info_queue, center)
 		info_queue[#info_queue + 1] = { set = "Other", key = self.key }
 		info_queue[#info_queue + 1] = { set = "Other", key = "cry_flickering_desc", specific_vars = { 5 } }
-		if G.P_CENTERS.j_cry_ghost then
+		if Cryptid_config.ghost_mechanics and G.P_CENTERS.j_cry_ghost then
 			info_queue[#info_queue + 1] = G.P_CENTERS.j_cry_ghost
 		end
 	end,
 	start = function(self)
+		if not Cryptid_config.ghost_mechanics then
+			return
+		end
 		G.GAME.events[self.key] = true
 		local areas = { "jokers", "deck", "hand", "play", "discard" }
 		for _, area_name in ipairs(areas) do
@@ -1136,7 +1140,13 @@ local ghost = {
 	eternal_compat = false,
 	perishable_compat = false,
 	no_dbl = true,
+	in_pool = function(self, args)
+		return Cryptid_config.ghost_mechanics
+	end,
 	calculate = function(self, card, context)
+		if not Cryptid_config.ghost_mechanics then
+			return
+		end
 		if
 			context.end_of_round
 			and not context.individual
@@ -1222,7 +1232,11 @@ local possessed = {
 	pos = { x = 6, y = 0 }, --todo
 	key = "possessed",
 	no_sticker_sheet = true,
+	no_edeck = not Cryptid_config.ghost_mechanics or nil,
 	badge_colour = HEX("aaaaaa"),
+	in_pool = function(self, args)
+		return Cryptid_config.ghost_mechanics
+	end,
 }
 
 local rotten_egg = {

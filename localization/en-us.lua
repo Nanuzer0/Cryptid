@@ -5376,6 +5376,8 @@ return {
 			cry_ccd_behavior = "CCD Behavior",
 			cry_ccd_standalone = "Standalone Modification",
 			cry_ccd_enhancement = "Enhancement",
+			cry_ghost_mechanics = "Ghost & Possessed",
+			cry_ghost_mechanics_desc = "Ghost, Possessed sticker, and Choco Die Event 1",
 			cry_set_enable_features = "Use this section to enable or disable entire Thematic Sets.",
 			cry_gameset_ongoing_warning = "(Gameset config options cannot be toggled while you have an ongoing game)",
 			cry_feat_achievements = "Achievements",

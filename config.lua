@@ -13,4 +13,5 @@ return {
 	["menu"] = true, -- Restart game and the main menu is now blue
 	["joker_display"] = true, -- enable/disable JokerDisplay integration
 	["ccd_as_enhancement"] = false, -- CCD replaces card enhancement instead of existing as a separate layer
+	["ghost_mechanics"] = true, -- Enable/disable Ghost, Possessed sticker, and Event 1 of Chocolate Die
 }

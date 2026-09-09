@@ -162,7 +162,7 @@ function Card:calculate_joker(context)
 	--local orig_ability = copy_table(active_side.ability)
 	local in_context_scaling = false
 	local callback = context.callback
-	if active_side.ability and active_side.ability.cry_possessed then
+	if Cryptid_config.ghost_mechanics and active_side.ability and active_side.ability.cry_possessed then
 		if
 			not (
 				(context.individual and not context.repetition)
@@ -175,7 +175,7 @@ function Card:calculate_joker(context)
 		context.callback = nil
 	end
 	local ret, trig = cj(active_side, context)
-	if active_side.ability and active_side.ability.cry_possessed and ret then
+	if Cryptid_config.ghost_mechanics and active_side.ability and active_side.ability.cry_possessed and ret then
 		if ret.mult_mod then
 			ret.mult_mod = ret.mult_mod * -1
 		end

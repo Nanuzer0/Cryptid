@@ -1131,7 +1131,7 @@ function create_card(_type, area, legendary, _rarity, skip_materialize, soulable
 		end
 	elseif G.GAME.modifiers.cry_force_all_stickers then
 		for _, c in ipairs(SMODS.Sticker.obj_buffer) do
-			if not SMODS.Stickers[c].no_edeck then
+			if not SMODS.Stickers[c].no_edeck and Cryptid.enabled(c) == true then
 				card:add_sticker(c, true)
 			end
 		end
@@ -1300,7 +1300,7 @@ function create_playing_card(card_init, area, skip_materialize, silent, colours,
 		end
 	elseif G.GAME.modifiers.cry_force_all_stickers then
 		for _, c in ipairs(SMODS.Sticker.obj_buffer) do
-			if not SMODS.Stickers[c].no_edeck then
+			if not SMODS.Stickers[c].no_edeck and Cryptid.enabled(c) == true then
 				card:add_sticker(c, true)
 			end
 		end

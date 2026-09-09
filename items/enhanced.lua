@@ -309,14 +309,15 @@ local sk_deck = {
 				for c = #G.playing_cards, 1, -1 do
 					if sticker == "all" then
 						for _, st in ipairs(SMODS.Sticker.obj_buffer) do
-							if not SMODS.Stickers[st].no_edeck then
+							if not SMODS.Stickers[st].no_edeck and Cryptid.enabled(st) == true then
 								G.playing_cards[c]:add_sticker(st, true)
 							end
 						end
 					else
 						local st = sticker == "random" and Cryptid.poll_random_sticker() or sticker
-						if SMODS.Stickers[st] then
+						if SMODS.Stickers[st] and not SMODS.Stickers[st].no_edeck and Cryptid.enabled(st) == true then
 							G.playing_cards[c]:add_sticker(st, true)
+						elseif SMODS.Stickers[st] then
 						else
 							G.playing_cards[c]["set_" .. st](G.playing_cards[c], true)
 						end

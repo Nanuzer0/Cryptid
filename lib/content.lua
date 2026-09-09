@@ -1127,7 +1127,7 @@ SMODS.RunSelectPage({
 	generate_pool = function(self)
 		local pool = {}
 		for _, c in ipairs(SMODS.Sticker.obj_buffer) do
-			if not SMODS.Stickers[c].no_edeck then
+			if not SMODS.Stickers[c].no_edeck and Cryptid.enabled(c) == true then
 				pool[#pool + 1] = SMODS.Stickers[c]
 			end
 		end
@@ -1142,7 +1142,7 @@ SMODS.RunSelectPage({
 			return
 		end
 		local curr = G.PROFILES[G.SETTINGS.profile].last_choices.cry_edeck_sk
-		if not SMODS.Stickers[curr] and curr ~= "all" and curr ~= "random" then
+		if (not SMODS.Stickers[curr] or SMODS.Stickers[curr].no_edeck or Cryptid.enabled(curr) ~= true) and curr ~= "all" and curr ~= "random" then
 			G.PROFILES[G.SETTINGS.profile].last_choices.cry_edeck_sk = "eternal"
 		end
 		if curr == "all" then
@@ -1157,7 +1157,7 @@ SMODS.RunSelectPage({
 		})
 	end,
 	set_default = function(self, choice)
-		return (SMODS.Stickers[choice] or choice == "all" or choice == "random") and choice or "eternal"
+		return ((SMODS.Stickers[choice] and not SMODS.Stickers[choice].no_edeck and Cryptid.enabled(choice) == true) or choice == "all" or choice == "random") and choice or "eternal"
 	end,
 	selected_text = function(self, selection)
 		if selection == "all" then
@@ -1194,7 +1194,7 @@ SMODS.RunSelectPage({
 				return generate_card_ui({ set = "Other", key = "all_stickers" }, nil, nil, "Other", {})
 			end
 			for _, sticker in pairs(SMODS.Stickers) do
-				if not sticker.no_edeck then
+				if not sticker.no_edeck and Cryptid.enabled(sticker.key) == true then
 					card:add_sticker(sticker.key, true)
 				end
 			end
