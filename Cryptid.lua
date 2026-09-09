@@ -455,26 +455,6 @@ local cryptidConfigTab = function()
 			ref_value = "joker_display",
 		})
 	end
-	local ccd_toggle = create_toggle({
-		label = localize("cry_ccd_as_enhancement"),
-		active_colour = HEX("8954bf"),
-		ref_table = Cryptid_config,
-		ref_value = "ccd_as_enhancement",
-		callback = function(val)
-			if Cryptid.has_ongoing_run() then
-				Cryptid_config.ccd_as_enhancement = not val
-			end
-		end,
-	})
-	if has_ongoing_run then
-		local button_node = ccd_toggle.nodes[2].nodes[1].nodes[1]
-		button_node.config.button = nil
-		button_node.config.hover = false
-		button_node.config.outline_colour = G.C.UI.BACKGROUND_INACTIVE
-		local label_node = ccd_toggle.nodes[1].nodes[1]
-		label_node.config.colour = G.C.UI.TEXT_INACTIVE
-	end
-	cry_nodes[#cry_nodes + 1] = ccd_toggle
 	cry_nodes[#cry_nodes + 1] = UIBox_button({
 		colour = has_ongoing_run and G.C.UI.BACKGROUND_INACTIVE or G.C.CRY_ALTGREENGRADIENT,
 		button = has_ongoing_run and "nil" or "reset_gameset_config",
@@ -502,8 +482,113 @@ local cryptidConfigTab = function()
 	}
 end
 
+G.FUNCS.cry_ccd_behavior_callback = function(args)
+	if Cryptid.has_ongoing_run() then
+		return
+	end
+	Cryptid_config.ccd_as_enhancement = ((args.to_key or args.cycle_config.current_option) == 2)
+	if SMODS.Mods and SMODS.Mods["Cryptid"] then
+		SMODS.save_mod_config(SMODS.Mods["Cryptid"])
+	end
+end
+
 local cryptidTabs = function()
 	return {
+		{
+			label = localize("cry_set_custom"),
+			tab_definition_function = function()
+				local has_ongoing_run = Cryptid.has_ongoing_run()
+				local cry_nodes = {
+					{
+						n = G.UIT.R,
+						config = { align = "cm" },
+						nodes = {
+							{
+								n = G.UIT.O,
+								config = {
+									object = DynaText({
+										string = localize("cry_set_custom_desc"),
+										colours = { G.C.WHITE },
+										shadow = true,
+										scale = 0.4,
+									}),
+								},
+							},
+						},
+					},
+				}
+				if has_ongoing_run then
+					cry_nodes[#cry_nodes + 1] = {
+						n = G.UIT.R,
+						config = { align = "cm" },
+						nodes = {
+							{
+								n = G.UIT.O,
+								config = {
+									object = DynaText({
+										string = localize("cry_gameset_ongoing_warning"),
+										colours = { G.C.RED },
+										shadow = true,
+										scale = 0.32,
+									}),
+								},
+							},
+						},
+					}
+				end
+				local cycle = create_option_cycle({
+					options = {
+						localize("cry_ccd_standalone"),
+						localize("cry_ccd_enhancement"),
+					},
+					w = 5.5,
+					cycle_shoulders = false,
+					opt_callback = "cry_ccd_behavior_callback",
+					current_option = Cryptid_config.ccd_as_enhancement and 2 or 1,
+					colour = has_ongoing_run and G.C.UI.BACKGROUND_INACTIVE or HEX("8954bf"),
+					label = localize("cry_ccd_behavior"),
+					scale = 0.8,
+				})
+				if has_ongoing_run then
+					local label_node = cycle.nodes[1].nodes[1]
+					label_node.config.colour = G.C.UI.TEXT_INACTIVE
+
+					local inner_t = cycle.nodes[2].nodes[1]
+					local left_arrow = inner_t.nodes[1]
+					local middle_box = inner_t.nodes[2]
+					local right_arrow = inner_t.nodes[3]
+
+					left_arrow.config.button = nil
+					left_arrow.config.hover = false
+					left_arrow.config.colour = G.C.BLACK
+					left_arrow.nodes[1].config.colour = G.C.UI.TEXT_INACTIVE
+
+					right_arrow.config.button = nil
+					right_arrow.config.hover = false
+					right_arrow.config.colour = G.C.BLACK
+					right_arrow.nodes[1].config.colour = G.C.UI.TEXT_INACTIVE
+
+					middle_box.config.colour = G.C.UI.BACKGROUND_INACTIVE
+					middle_box.config.hover = false
+				end
+				local settings = { n = G.UIT.C, config = { align = "tm", padding = 0.05 }, nodes = { cycle } }
+				local config = { n = G.UIT.R, config = { align = "tm", padding = 0 }, nodes = { settings } }
+				cry_nodes[#cry_nodes + 1] = config
+				return {
+					n = G.UIT.ROOT,
+					config = {
+						emboss = 0.05,
+						minh = 6,
+						r = 0.1,
+						minw = 10,
+						align = "cm",
+						padding = 0.2,
+						colour = G.C.BLACK,
+					},
+					nodes = cry_nodes,
+				}
+			end,
+		},
 		{
 			label = localize("cry_set_music"),
 			tab_definition_function = function()
