@@ -620,7 +620,8 @@ local cryptidTabs = function()
 					middle_box.config.colour = G.C.UI.BACKGROUND_INACTIVE
 					middle_box.config.hover = false
 				end
-				local settings = { n = G.UIT.C, config = { align = "tm", padding = 0.05 }, nodes = { cycle, ghost_cycle } }
+				local settings =
+					{ n = G.UIT.C, config = { align = "tm", padding = 0.05 }, nodes = { cycle, ghost_cycle } }
 				local config = { n = G.UIT.R, config = { align = "tm", padding = 0 }, nodes = { settings } }
 				cry_nodes[#cry_nodes + 1] = config
 				return {

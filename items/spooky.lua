@@ -161,7 +161,8 @@ local choco_dice = {
 				prev_ev:finish()
 			end
 			local min_roll = Cryptid_config.ghost_mechanics and 1 or 2
-			card.ability.extra.roll = Cryptid.roll("cry_choco", min_roll, 10, { ignore_value = card.ability.extra.roll })
+			card.ability.extra.roll =
+				Cryptid.roll("cry_choco", min_roll, 10, { ignore_value = card.ability.extra.roll })
 			local next_ev = SMODS.Events["ev_cry_choco" .. card.ability.extra.roll]
 			if next_ev then
 				next_ev:start()

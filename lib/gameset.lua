@@ -960,10 +960,20 @@ function Cryptid.enabled(key, iter)
 	if
 		not card
 		or Cryptid.gameset(card) == "disabled"
-		or card.gameset_config
-			and card.gameset_config[Cryptid.gameset(card)]
-			and card.gameset_config[Cryptid.gameset(card)].disabled
-		or (not Cryptid_config.ghost_mechanics and (key == "j_cry_ghost" or key == "ghost" or key == "cry_possessed" or key == "possessed" or key == "ev_cry_choco1" or key == "choco1"))
+		or card.gameset_config and card.gameset_config[Cryptid.gameset(card)] and card.gameset_config[Cryptid.gameset(
+			card
+		)].disabled
+		or (
+			not Cryptid_config.ghost_mechanics
+			and (
+				key == "j_cry_ghost"
+				or key == "ghost"
+				or key == "cry_possessed"
+				or key == "possessed"
+				or key == "ev_cry_choco1"
+				or key == "choco1"
+			)
+		)
 	then
 		return { type = "manual" }
 	end
