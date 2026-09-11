@@ -2017,7 +2017,6 @@ local spaghetti = {
 }
 -- ://Seed
 -- Gives any card Rigged
--- (TODO: make it work when used in shop)
 local seed = {
 	cry_credits = {
 		idea = {
@@ -2044,7 +2043,15 @@ local seed = {
 	atlas = "atlasnotjokers",
 	order = 411,
 	can_use = function(self, card)
-		local cards = Cryptid.get_highlighted_cards({ G.jokers, G.hand, G.consumeables, G.pack_cards }, card, 1, 1)
+		local cards = Cryptid.get_highlighted_cards({
+			G.jokers,
+			G.hand,
+			G.consumeables,
+			G.pack_cards,
+			G.shop_jokers,
+			G.shop_booster,
+			G.shop_vouchers,
+		}, card, 1, 1)
 		--the card itself and one other card
 		return #cards == 1
 	end,
@@ -2052,21 +2059,29 @@ local seed = {
 		info_queue[#info_queue + 1] = { key = "cry_rigged", set = "Other", vars = {} }
 	end,
 	use = function(self, card, area, copier)
-		local cards = Cryptid.get_highlighted_cards({ G.jokers, G.hand, G.consumeables, G.pack_cards }, card, 1, 1)
+		local cards = Cryptid.get_highlighted_cards({
+			G.jokers,
+			G.hand,
+			G.consumeables,
+			G.pack_cards,
+			G.shop_jokers,
+			G.shop_booster,
+			G.shop_vouchers,
+		}, card, 1, 1)
 		if cards[1] then
 			cards[1].ability.cry_rigged = true
 			if cards[1].config.center.key == "j_cry_googol_play" then
 				check_for_unlock({ type = "googol_play_rigged" })
 			end
-		end
-		if cards[1].area == G.hand then
-			G.E_MANAGER:add_event(Event({
-				trigger = "after",
-				func = function()
-					G.hand:unhighlight_all()
-					return true
-				end,
-			}))
+			if cards[1].area and cards[1].area.unhighlight_all then
+				G.E_MANAGER:add_event(Event({
+					trigger = "after",
+					func = function()
+						cards[1].area:unhighlight_all()
+						return true
+					end,
+				}))
+			end
 		end
 	end,
 	demicoloncompat = true,
