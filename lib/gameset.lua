@@ -786,6 +786,42 @@ if Cryptid_config.gameset_toggle then
 	end
 end
 
+-- The option an item is currently set to, for marking it in the gameset picker. Uses a plain
+-- table so a force_gameset on the picker's own copy of the center doesn't count. Options that
+-- disable the item aren't shown in the picker, so those count as "disabled".
+local function cry_selected_gameset(center)
+	local probe = { key = center.key, extra_gamesets = center.extra_gamesets }
+	local gameset = Cryptid.gameset(probe, probe)
+	if center.gameset_config and center.gameset_config[gameset] and center.gameset_config[gameset].disabled then
+		gameset = "disabled"
+	end
+	return gameset
+end
+
+-- Marks a gameset picker card as the current choice with the same green tick box that vanilla
+-- shows next to completed challenges, in the card's top-right corner. SMODS draws it with the
+-- card's other children, and it's removed together with the card. None of it takes hover or
+-- clicks, so the card stays clickable underneath.
+local function cry_add_selected_tick(card)
+	local icon = Sprite(0, 0, 0.4, 0.4, G.ASSET_ATLAS["icons"], { x = 1, y = 0 })
+	icon.states.collide.can = false
+	local tick = UIBox({
+		definition = {
+			n = G.UIT.ROOT,
+			config = { align = "cm", colour = G.C.GREEN, r = 0.1, padding = 0.03, emboss = 0.05 },
+			nodes = {
+				{ n = G.UIT.O, config = { object = icon } },
+			},
+		},
+		config = { align = "tri", offset = { x = 0.1, y = -0.1 }, major = card, bond = "Strong", parent = card },
+	})
+	tick.states.collide.can = false
+	if tick.UIRoot then
+		tick.UIRoot.states.collide.can = false
+	end
+	card.children.cry_selected_tick = tick
+end
+
 -- gameset config UI
 function Cryptid.gameset_config_UI(center)
 	if Cryptid.has_ongoing_run() then
@@ -820,6 +856,7 @@ function Cryptid.gameset_config_UI(center)
 	if center.set == "Content Set" then
 		gamesets = { "disabled", G.PROFILES[G.SETTINGS.profile].cry_gameset }
 	end
+	local selected = cry_selected_gameset(center)
 	for i = 1, #gamesets do
 		if
 			not (
@@ -832,6 +869,9 @@ function Cryptid.gameset_config_UI(center)
 			_center.force_gameset = gamesets[i]
 			local card = Cryptid.generic_card(_center)
 			card.gameset_select = true
+			if gamesets[i] == selected then
+				cry_add_selected_tick(card)
+			end
 			G.your_collection[1]:emplace(card)
 			--[[if not is_back then
 				local card = Card(
