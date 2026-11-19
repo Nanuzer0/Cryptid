@@ -979,10 +979,11 @@ function Cryptid.reset_to_none()
 	})
 end
 
--- Force a synchronous save of the full run state before ://CRASH kills the game loop.
--- Balatro's save_run() only queues a FILE_HANDLER flag; the actual disk write happens
--- asynchronously in Game:update(). Since crash functions kill the loop immediately,
--- we need to flush the save through G.SAVE_MANAGER.channel ourselves.
+-- Write the full run state to disk before ://CRASH kills the game loop.
+-- Balatro's save_run() only builds the save table and queues a FILE_HANDLER flag; the disk
+-- write normally happens later on the save manager thread. Some crash effects quit the game
+-- immediately (empty love.errorhandler), which can kill that thread before it finishes, so
+-- the save is written directly on the main thread here, the same way the save thread does it.
 function Cryptid.force_save_before_crash(used_card)
 	-- Remove the consumed card so it doesn't appear in the save file
 	if used_card then
@@ -1007,26 +1008,27 @@ function Cryptid.force_save_before_crash(used_card)
 		resting_state = G.STATES.ROUND_EVAL
 	end
 
-	-- Temporarily override state so save_run() doesn't bail out
+	-- save_run() records G.STATE in the save, and skips saving entirely while F_NO_SAVING is set,
+	-- so swap both for the duration of the call and always put them back
 	local old_state = G.STATE
 	local old_no_save = G.F_NO_SAVING
 	G.STATE = resting_state
 	G.F_NO_SAVING = false
-
-	-- Build the save table
-	save_run()
-
-	-- Restore original state
+	local ok, err = pcall(save_run)
 	G.F_NO_SAVING = old_no_save
 	G.STATE = old_state
+	if not ok then
+		sendErrorMessage("Could not build save before ://CRASH: " .. tostring(err), "Cryptid")
+		return
+	end
 
-	-- Flush the save data synchronously through the save manager channel
-	if G.ARGS.save_run and G.SAVE_MANAGER and G.SAVE_MANAGER.channel then
-		G.SAVE_MANAGER.channel:push({
-			type = "save_run",
-			save_table = G.ARGS.save_run,
-			profile_num = G.SETTINGS.profile,
-		})
+	-- Write synchronously (same as the save manager thread's "save_run" handler)
+	if G.ARGS.save_run and G.SETTINGS.profile then
+		local profile_dir = tostring(G.SETTINGS.profile)
+		if not love.filesystem.getInfo(profile_dir) then
+			love.filesystem.createDirectory(profile_dir)
+		end
+		compress_and_save(profile_dir .. "/save.jkr", G.ARGS.save_run)
 	end
 end
 
