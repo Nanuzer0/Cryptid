@@ -1279,6 +1279,15 @@ G.FUNCS.exit_overlay_menu_code = function(e)
 	G.GAME.POINTER_COLLECTION = nil
 end
 
+-- Back button for Pointer's playing card submenus (rank, suit, enhancement, edition, seal).
+-- Leaving POINTER_SUBMENU set after going back keeps the ://VARIABLE and ://CLASS emplace hooks
+-- and the submenu click handling active in the main collection.
+G.FUNCS.pointer_submenu_back = function(e)
+	G.GAME.POINTER_SUBMENU = nil
+	G.GAME.POINTER_PLAYING = nil
+	G.FUNCS.your_collection(e)
+end
+
 function G.UIDEF.exploit_menu()
 	return create_UIBox_generic_options({
 		contents = {
@@ -1349,7 +1358,7 @@ function create_UIBox_pointer_rank()
 		h_mod = 1.03,
 		--infotip = localize('ml_edition_seal_enhancement_explanation'),
 		hide_single_page = true,
-		back_func = "your_collection",
+		back_func = "pointer_submenu_back",
 		modify_card = function(card, center, i, j)
 			SMODS.change_base(card, "Spades", ranks[(j - 1) * 5 + i])
 			if
@@ -1360,7 +1369,7 @@ function create_UIBox_pointer_rank()
 				or center.no_variable
 				or center.no_class
 			then
-				card.deuff = true
+				card.debuff = true
 			end
 		end,
 	})
@@ -1383,7 +1392,7 @@ function create_UIBox_pointer_suit()
 		h_mod = 1.03,
 		--infotip = localize('ml_edition_seal_enhancement_explanation'),
 		hide_single_page = true,
-		back_func = "your_collection",
+		back_func = "pointer_submenu_back",
 		modify_card = function(card, center, i, j)
 			SMODS.change_base(card, suits[(j - 1) * 4 + i], G.GAME.POINTER_PLAYING.rank)
 			if
@@ -1394,7 +1403,7 @@ function create_UIBox_pointer_suit()
 				or center.no_variable
 				or center.no_class
 			then
-				card.deuff = true
+				card.debuff = true
 			end
 		end,
 	})
@@ -1434,6 +1443,7 @@ create_UIBox_your_collection_enhancements_pointer = function()
 		snap_back = true,
 		h_mod = 1.03,
 		hide_single_page = true,
+		back_func = "pointer_submenu_back",
 		modify_card = function(card, center)
 			SMODS.change_base(card, G.GAME.POINTER_PLAYING.suit, G.GAME.POINTER_PLAYING.rank)
 			if
@@ -1444,7 +1454,7 @@ create_UIBox_your_collection_enhancements_pointer = function()
 				or center.no_variable
 				or center.no_class
 			then
-				card.deuff = true
+				card.debuff = true
 			end
 		end,
 	})
@@ -1456,6 +1466,7 @@ create_UIBox_your_collection_editions_pointer = function()
 		h_mod = 1.03,
 		hide_single_page = true,
 		collapse_single_page = true,
+		back_func = "pointer_submenu_back",
 		modify_card = function(card, center)
 			if center.discovered then
 				card:set_edition(center.key, true, true)
@@ -1469,7 +1480,7 @@ create_UIBox_your_collection_editions_pointer = function()
 					or center.no_variable
 					or center.no_class
 				then
-					card.deuff = true
+					card.debuff = true
 				end
 			end
 		end,
@@ -1489,6 +1500,7 @@ create_UIBox_your_collection_seals_pointer = function()
 		collapse_single_page = true,
 		center = "c_base",
 		h_mod = 1.03,
+		back_func = "pointer_submenu_back",
 		modify_card = function(card, center)
 			card:set_seal(center.key, true)
 			SMODS.change_base(card, G.GAME.POINTER_PLAYING.suit, G.GAME.POINTER_PLAYING.rank)
@@ -1502,7 +1514,7 @@ create_UIBox_your_collection_seals_pointer = function()
 				or center.no_variable
 				or center.no_class
 			then
-				card.deuff = true
+				card.debuff = true
 			end
 		end,
 	})

@@ -3383,7 +3383,7 @@ local class = {
 		end
 		local emplace_ref = CardArea.emplace
 		function CardArea:emplace(card, ...)
-			if G.GAME.USING_CLASS or G.GAME.POINTER_SUBMENU == "Enhancement" then
+			if G.GAME.USING_CLASS or (G.GAME.USING_POINTER and G.GAME.POINTER_SUBMENU == "Enhancement") then
 				local c = card.config.center
 				--no class is exclusive to class and no code is just a generic code cards cant create this thing
 				if c.hidden or c.noe_doe or c.no_collection or c.no_class or c.no_code then
@@ -3601,8 +3601,10 @@ local variable = {
 		end
 		local emplace_ref = CardArea.emplace
 		function CardArea:emplace(card, ...)
-			if G.GAME.USING_VARIABLE or G.GAME.POINTER_SUBMENU == "Rank" then
-				local c = SMODS.Ranks[card.base.value] or {}
+			-- Only touch ranked playing cards: jokers have no rank, and the un-debuff event below
+			-- would otherwise clear Pointer's blacklist debuff on exotics
+			local c = card.base and card.base.value and SMODS.Ranks[card.base.value]
+			if c and (G.GAME.USING_VARIABLE or (G.GAME.USING_POINTER and G.GAME.POINTER_SUBMENU == "Rank")) then
 				if c.hidden or c.noe_doe or c.no_collection or c.no_variable or c.no_code then
 					card.debuff = true
 				else
