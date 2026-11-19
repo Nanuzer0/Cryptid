@@ -147,29 +147,6 @@ function Card:update_alert()
 	return update_alert_ref(self)
 end
 
-if SMODS.has_playing_card_property then
-	local orig_has_property = SMODS.has_playing_card_property
-	SMODS.has_playing_card_property = function(card, key)
-		for k, _ in pairs(SMODS.get_enhancements(card)) do
-			if G.P_CENTERS[k] and G.P_CENTERS[k][key] then
-				return true
-			end
-		end
-		if (G.P_CENTERS[(card.edition or {}).key] or {})[key] then
-			return true
-		end
-		if (G.P_SEALS[card.seal or {}] or {})[key] then
-			return true
-		end
-		for k, v in pairs(SMODS.Stickers) do
-			if v[key] and card.ability and card.ability[k] then
-				return true
-			end
-		end
-		return false
-	end
-end
-
 -- Third Layer
 SMODS.DrawStep({
 	key = "floating_sprite2",
