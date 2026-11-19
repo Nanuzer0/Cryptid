@@ -1001,6 +1001,74 @@ SMODS.DrawStep({
 	conditions = { vortex = false, facing = "front" },
 })
 
+-- Gameset sticker (the modest/mainline/madness icon) on:
+-- * gameset picker cards: the option the card stands for
+-- * the Additions page of Cryptid (or a whitelisted mod): the gameset the item is in, unless it's
+--   disabled or a thematic set. These are the cards that open the picker when clicked (see
+--   Card:click above).
+-- This used to be a lovely patch inside SMODS's sticker DrawStep and only covered the picker.
+local cry_gameset_stickers
+local function cry_gameset_sticker_sprites()
+	if not cry_gameset_stickers and G.ASSET_ATLAS["cry_gameset"] then
+		local atlas = G.ASSET_ATLAS["cry_gameset"]
+		cry_gameset_stickers = {
+			modest = Sprite(0, 0, G.CARD_W, G.CARD_H, atlas, { x = 0, y = 0 }),
+			mainline = Sprite(0, 0, G.CARD_W, G.CARD_H, atlas, { x = 1, y = 0 }),
+			madness = Sprite(0, 0, G.CARD_W, G.CARD_H, atlas, { x = 2, y = 0 }),
+			custom = Sprite(0, 0, G.CARD_W, G.CARD_H, atlas, { x = 3, y = 0 }),
+		}
+	end
+	return cry_gameset_stickers
+end
+
+local function cry_shown_gameset(card)
+	local center = card.config and card.config.center
+	if not center then
+		return
+	end
+	if card.gameset_select then
+		return center.force_gameset
+	end
+	local mod_ui = G.ACTIVE_MOD_UI
+	local mod = center.original_mod or center.mod
+	if
+		center.set ~= "Content Set" -- thematic sets are only on or off, they don't have a gameset
+		and mod_ui
+		and (mod_ui.id == "Cryptid" or Cryptid.mod_gameset_whitelist[mod_ui.id])
+		and mod
+		and (mod.id == "Cryptid" or Cryptid.mod_gameset_whitelist[mod.id])
+		and card.area
+		and card.area.config
+		and card.area.config.collection
+		and not cry_draws_as_disabled(card)
+	then
+		return Cryptid.gameset(card, center)
+	end
+end
+
+SMODS.DrawStep({
+	key = "cry_gameset_sticker",
+	order = 39, -- just before SMODS's stickers
+	func = function(self)
+		local gameset = cry_shown_gameset(self)
+		if not gameset or gameset == "disabled" then
+			return
+		end
+		if gameset ~= "modest" and gameset ~= "mainline" and gameset ~= "madness" then
+			gameset = "custom"
+		end
+		local sprites = cry_gameset_sticker_sprites()
+		local sprite = sprites and sprites[gameset]
+		if not sprite then
+			return
+		end
+		sprite.role.draw_major = self
+		sprite:draw_shader("dissolve", nil, nil, nil, self.children.center)
+		sprite:draw_shader("voucher", nil, self.ARGS.send_to_shader, nil, self.children.center)
+	end,
+	conditions = { vortex = false, facing = "front" },
+})
+
 -- change the rarity sticker's color for gameset selection on an item
 local gtc = get_type_colour
 function get_type_colour(center, card)
