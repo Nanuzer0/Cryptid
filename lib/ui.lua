@@ -522,3 +522,125 @@ function G.UIDEF.use_and_sell_buttons(card)
 	end
 	return button_nodes
 end
+-- "End Run" button on the main menu's Continue tab. It deletes the saved run, so things that
+-- are locked during a run (like gameset settings) can be changed without playing it out.
+-- Works like vanilla's Delete Profile: the first click shows a warning, the second confirms.
+local run_setup_option_ref = G.UIDEF.run_setup_option
+function G.UIDEF.run_setup_option(_type)
+	local t = run_setup_option_ref(_type)
+	if _type ~= "Continue" or not G.SAVED_GAME or G.STAGE ~= G.STAGES.MAIN_MENU then
+		return t
+	end
+	-- a row below the Play button, the same width so the two buttons stack neatly,
+	-- with the confirmation text under it like vanilla's Delete Profile warning
+	t.nodes[#t.nodes + 1] = {
+		n = G.UIT.R,
+		config = { align = "cm", padding = 0.05 },
+		nodes = {
+			{
+				n = G.UIT.C,
+				config = {
+					align = "cm",
+					minw = 5,
+					minh = 0.6,
+					padding = 0.15,
+					r = 0.1,
+					hover = true,
+					shadow = true,
+					colour = G.C.RED,
+					button = "cry_end_saved_run",
+					func = "cry_can_end_saved_run",
+					focus_args = { nav = "wide" },
+				},
+				nodes = {
+					{
+						n = G.UIT.T,
+						config = { text = localize("cry_end_run"), scale = 0.5, colour = G.C.UI.TEXT_LIGHT },
+					},
+				},
+			},
+		},
+	}
+	t.nodes[#t.nodes + 1] = {
+		n = G.UIT.R,
+		config = { align = "cm", padding = 0.05 },
+		nodes = {
+			{
+				n = G.UIT.T,
+				config = {
+					id = "cry_end_run_warning",
+					text = localize("ph_click_confirm"),
+					scale = 0.35,
+					colour = G.C.CLEAR,
+				},
+			},
+		},
+	}
+	return t
+end
+
+G.FUNCS.cry_can_end_saved_run = function(e)
+	if e.config.disable_button then
+		e.config.colour = G.C.UI.BACKGROUND_INACTIVE
+		e.config.button = nil
+	else
+		e.config.colour = G.C.RED
+		e.config.button = "cry_end_saved_run"
+	end
+end
+
+G.FUNCS.cry_end_saved_run = function(e)
+	local warning_text = e.UIBox and e.UIBox:get_UIE_by_ID("cry_end_run_warning")
+	if not warning_text then
+		return
+	end
+	if warning_text.config.colour ~= G.C.WHITE then
+		-- first click: show the warning, and ignore clicks briefly so a double click doesn't confirm
+		warning_text:juice_up()
+		warning_text.config.colour = G.C.WHITE
+		warning_text.config.shadow = true
+		e.config.disable_button = true
+		G.E_MANAGER:add_event(Event({
+			trigger = "after",
+			delay = 0.06,
+			blockable = false,
+			blocking = false,
+			func = function()
+				play_sound("tarot2", 0.76, 0.4)
+				return true
+			end,
+		}))
+		G.E_MANAGER:add_event(Event({
+			trigger = "after",
+			delay = 0.35,
+			blockable = false,
+			blocking = false,
+			func = function()
+				e.config.disable_button = nil
+				return true
+			end,
+		}))
+		play_sound("tarot2", 1, 0.4)
+		return
+	end
+	-- second click: same streak handling as vanilla when a new run replaces an unfinished one
+	local saved = G.SAVED_GAME
+	if saved and saved.GAME and not saved.GAME.won then
+		local high_scores = G.PROFILES[G.SETTINGS.profile].high_scores
+		if high_scores and high_scores.current_streak then
+			high_scores.current_streak.amt = 0
+		end
+		G:save_settings()
+	end
+	remove_save()
+	play_sound("crumple1", 0.8, 1)
+	-- reopen the Play menu, which no longer has a run to continue
+	G.E_MANAGER:add_event(Event({
+		blockable = false,
+		blocking = false,
+		func = function()
+			G.FUNCS.setup_run({ config = {} })
+			return true
+		end,
+	}))
+end

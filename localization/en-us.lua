@@ -5405,6 +5405,7 @@ return {
 			cry_family = "Family Friendly Mode",
 			cry_experimental = "Experimental Mode",
 			cry_simple_crash = "Simple ://CRASH (instant quit only)",
+			cry_end_run = "End Run",
 
 			k_cry_program_pack = "Program Pack",
 			k_cry_meme_pack = "Meme Pack",
