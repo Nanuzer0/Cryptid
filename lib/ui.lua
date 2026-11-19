@@ -388,22 +388,17 @@ function Card:hover()
 	if self.children.h_popup then
 		return
 	end
-	local is_antimatter = self.cry_antimatter_card
-	local has_antimatter_loc_vars = is_antimatter and self.config.center.cry_antimatter_loc_vars
-	local orig_loc_vars = nil
-	if is_antimatter then
-		Cryptid.in_antimatter_hover = self
-		if has_antimatter_loc_vars then
-			orig_loc_vars = self.config.center.loc_vars
-			self.config.center.loc_vars = self.config.center.cry_antimatter_loc_vars
-		end
+	if not self.cry_antimatter_card then
+		return ch(self)
 	end
-	ch(self)
-	if is_antimatter then
-		if has_antimatter_loc_vars then
-			self.config.center.loc_vars = orig_loc_vars
-		end
-		Cryptid.in_antimatter_hover = nil
+	-- Antimatter deck select: while this popup is built, deck descriptions use their
+	-- "_antimatter" variants (see the localize and grab_tooltips hooks below). Clear the flag
+	-- even if building the popup errors, or every later deck description would use them.
+	Cryptid.in_antimatter_hover = self
+	local ok, err = pcall(ch, self)
+	Cryptid.in_antimatter_hover = nil
+	if not ok then
+		error(err, 0)
 	end
 end
 
@@ -417,12 +412,14 @@ function localize(args, misc_cat)
 	return loc_ref(args, misc_cat)
 end
 
-local orig_grab_tooltips = SMODS.RunSelect.Functions.grab_tooltips
-function SMODS.RunSelect.Functions.grab_tooltips(set, key)
-	if Cryptid.in_antimatter_hover and set == "Back" and G.localization.descriptions.Back[key .. "_antimatter"] then
-		key = key .. "_antimatter"
+if SMODS.RunSelect and SMODS.RunSelect.Functions and SMODS.RunSelect.Functions.grab_tooltips then
+	local orig_grab_tooltips = SMODS.RunSelect.Functions.grab_tooltips
+	function SMODS.RunSelect.Functions.grab_tooltips(set, key)
+		if Cryptid.in_antimatter_hover and set == "Back" and G.localization.descriptions.Back[key .. "_antimatter"] then
+			key = key .. "_antimatter"
+		end
+		return orig_grab_tooltips(set, key)
 	end
-	return orig_grab_tooltips(set, key)
 end
 
 local G_UIDEF_use_and_sell_buttons_ref = G.UIDEF.use_and_sell_buttons
