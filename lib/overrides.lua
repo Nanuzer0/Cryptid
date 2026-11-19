@@ -2498,110 +2498,98 @@ function Card:set_ability(center, initial, delay_sprites)
 	end
 end
 
--- Monopoly Money handling for booster packs and vouchers
+-- Monopoly Money handling for booster packs and vouchers.
+-- Jokers and consumables are checked through context.buying_card after they're bought, but packs
+-- and vouchers take effect inside open()/redeem(), so Monopoly Money has to see them first. It
+-- gets a separate context for that, so other buying_card jokers (e.g. Cursor) still trigger once.
+local function cry_purchase_destroyed(card)
+	if card.from_tag then
+		return false
+	end
+	SMODS.calculate_context({ cry_before_purchase = true, card = card })
+	return card.cry_monopoly_destroyed
+end
+
+-- Pay for a pack/voucher that Monopoly Money destroyed, without opening/redeeming it
+local function cry_pay_for_destroyed(card)
+	if card.cost > 0 then
+		ease_dollars(-card.cost)
+		inc_career_stat("c_shop_dollars_spent", card.cost)
+	end
+	if G.GAME.modifiers.inflation then
+		G.GAME.inflation = G.GAME.inflation + 1
+		G.E_MANAGER:add_event(Event({
+			func = function()
+				for _, v in pairs(G.I.CARD) do
+					if v.set_cost then
+						v:set_cost()
+					end
+				end
+				return true
+			end,
+		}))
+	end
+end
+
 local openref = Card.open
 function Card:open()
-	if self.ability.set == "Booster" then
-		if not self.from_tag then
-			SMODS.calculate_context({ buying_card = true, card = self })
-		end
-		if self.cry_monopoly_destroyed then
-			if self.cost > 0 then
-				G.E_MANAGER:add_event(Event({
-					trigger = "after",
-					delay = 0.2,
-					func = function()
-						inc_career_stat("c_shop_dollars_spent", self.cost)
-						self:juice_up()
-						return true
-					end,
-				}))
-				ease_dollars(-self.cost)
-			else
-				delay(0.2)
-			end
-			if G.GAME.modifiers.inflation then
-				G.GAME.inflation = G.GAME.inflation + 1
-				G.E_MANAGER:add_event(Event({
-					func = function()
-						for k, v in pairs(G.I.CARD) do
-							if v.set_cost then
-								v:set_cost()
-							end
-						end
-						return true
-					end,
-				}))
-			end
-			G.E_MANAGER:add_event(Event({
-				trigger = "after",
-				delay = 0.2,
-				func = function()
-					if G.shop and G.shop.alignment.offset.py then
-						G.shop.alignment.offset.y = G.shop.alignment.offset.py
-						G.shop.alignment.offset.py = nil
-					end
-					G.STATE = G.STATES.SHOP
-					G.TAROT_INTERRUPT = nil
-					G.CONTROLLER.locks.use = false
-					if G.shop then
-						G.CONTROLLER:snap_to({ node = G.shop:get_UIE_by_ID("next_round_button") })
-					end
-					return true
-				end,
-			}))
-			return
-		end
+	if self.ability.set == "Booster" and cry_purchase_destroyed(self) then
+		cry_pay_for_destroyed(self)
+		G.E_MANAGER:add_event(Event({
+			trigger = "after",
+			delay = 0.2,
+			func = function()
+				self:juice_up()
+				return true
+			end,
+		}))
+		-- use_card already moved the shop out of the way for the pack; put it back
+		G.E_MANAGER:add_event(Event({
+			trigger = "after",
+			delay = 0.2,
+			func = function()
+				if G.shop and G.shop.alignment.offset.py then
+					G.shop.alignment.offset.y = G.shop.alignment.offset.py
+					G.shop.alignment.offset.py = nil
+				end
+				G.STATE = G.STATES.SHOP
+				G.TAROT_INTERRUPT = nil
+				G.CONTROLLER.locks.use = false
+				if G.shop then
+					G.CONTROLLER:snap_to({ node = G.shop:get_UIE_by_ID("next_round_button") })
+				end
+				return true
+			end,
+		}))
+		return
 	end
 	return openref(self)
 end
 
 local redeemref = Card.redeem
 function Card:redeem()
-	if self.ability.set == "Voucher" then
-		if not self.from_tag then
-			SMODS.calculate_context({ buying_card = true, card = self })
+	if self.ability.set == "Voucher" and cry_purchase_destroyed(self) then
+		stop_use()
+		if not self.config.center.discovered then
+			discover_card(self.config.center)
 		end
-		if self.cry_monopoly_destroyed then
-			stop_use()
-			if not self.config.center.discovered then
-				discover_card(self.config.center)
-			end
-			if self.shop_voucher then
-				if
-					G.GAME.current_round.voucher
-					and type(G.GAME.current_round.voucher) == "table"
-					and G.GAME.current_round.voucher.spawn
-				then
-					G.GAME.current_round.voucher.spawn[self.config.center_key] = false
-					if self.shop_voucher_idx then
-						G.GAME.current_round.voucher.spawn[self.shop_voucher_idx] = false
-					end
+		if self.shop_voucher then
+			local voucher = G.GAME.current_round.voucher
+			if type(voucher) == "table" and voucher.spawn then
+				voucher.spawn[self.config.center_key] = false
+				if self.shop_voucher_idx then
+					voucher.spawn[self.shop_voucher_idx] = false
 				end
-				G.GAME.current_round.voucher = nil
 			end
-			if self.shop_cry_bonusvoucher then
-				G.GAME.cry_bonusvouchersused[self.shop_cry_bonusvoucher] = true
-			end
-			self.states.hover.can = false
-			ease_dollars(-self.cost)
-			inc_career_stat("c_shop_dollars_spent", self.cost)
-			inc_career_stat("c_vouchers_bought", 1)
-			if G.GAME.modifiers.inflation then
-				G.GAME.inflation = G.GAME.inflation + 1
-				G.E_MANAGER:add_event(Event({
-					func = function()
-						for k, v in pairs(G.I.CARD) do
-							if v.set_cost then
-								v:set_cost()
-							end
-						end
-						return true
-					end,
-				}))
-			end
-			return
+			G.GAME.current_round.voucher = nil
 		end
+		if self.shop_cry_bonusvoucher then
+			G.GAME.cry_bonusvouchersused[self.shop_cry_bonusvoucher] = true
+		end
+		self.states.hover.can = false
+		cry_pay_for_destroyed(self)
+		inc_career_stat("c_vouchers_bought", 1)
+		return
 	end
 	return redeemref(self)
 end

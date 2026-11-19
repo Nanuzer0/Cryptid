@@ -1892,17 +1892,22 @@ local monopoly_money = {
 	demicoloncompat = true,
 	no_dbl = true,
 	calculate = function(self, card, context)
+		-- Packs and vouchers are checked before they take effect (cry_before_purchase, fired from
+		-- Card:open/Card:redeem in lib/overrides.lua). Vanilla also fires buying_card for vouchers,
+		-- but only after redeeming, so ignore that one; everything else is checked on buying_card.
+		local target = context.card
+		local is_purchase = target
+			and (
+				context.cry_before_purchase
+				or (context.buying_card and target.ability.set ~= "Voucher" and target.ability.set ~= "Booster")
+			)
 		if
-			context.buying_card
+			is_purchase
 			and not context.blueprint_card
 			and not context.retrigger_joker
-			and not (context.card == card)
-			and not (context.card and context.card.cry_monopoly_destroyed)
-			and not (context.card and context.card.cry_monopoly_checked)
+			and target ~= card
+			and not target.cry_monopoly_destroyed
 		then
-			if context.card then
-				context.card.cry_monopoly_checked = true
-			end
 			if
 				SMODS.pseudorandom_probability(
 					card,
@@ -1911,14 +1916,10 @@ local monopoly_money = {
 					card and card.ability.extra.odds or self.config.extra.odds
 				)
 			then
-				if context.card then
-					context.card.cry_monopoly_destroyed = true
-				end
+				target.cry_monopoly_destroyed = true
 				G.E_MANAGER:add_event(Event({
 					func = function()
-						if context.card then
-							context.card:start_dissolve()
-						end
+						target:start_dissolve()
 						card_eval_status_text(card, "extra", nil, nil, nil, {
 							message = localize("k_nope_ex"),
 							colour = G.C.BLACK,
