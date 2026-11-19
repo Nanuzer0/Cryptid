@@ -1000,11 +1000,11 @@ function Cryptid.force_save_before_crash(used_card)
 
 	-- Determine what state the game should reload into
 	local resting_state = G.STATES.SELECTING_HAND
-	if G.shop or G.STATE == G.STATES.SHOP or (G.GAME.pack_interrupt == G.STATES.SHOP) then
+	if G.shop or G.STATE == G.STATES.SHOP or (G.GAME.PACK_INTERRUPT == G.STATES.SHOP) then
 		resting_state = G.STATES.SHOP
-	elseif G.blind_select or G.STATE == G.STATES.BLIND_SELECT or (G.GAME.pack_interrupt == G.STATES.BLIND_SELECT) then
+	elseif G.blind_select or G.STATE == G.STATES.BLIND_SELECT or (G.GAME.PACK_INTERRUPT == G.STATES.BLIND_SELECT) then
 		resting_state = G.STATES.BLIND_SELECT
-	elseif G.STATE == G.STATES.ROUND_EVAL or (G.GAME.pack_interrupt == G.STATES.ROUND_EVAL) then
+	elseif G.STATE == G.STATES.ROUND_EVAL or (G.GAME.PACK_INTERRUPT == G.STATES.ROUND_EVAL) then
 		resting_state = G.STATES.ROUND_EVAL
 	end
 
@@ -1020,6 +1020,25 @@ function Cryptid.force_save_before_crash(used_card)
 	if not ok then
 		sendErrorMessage("Could not build save before ://CRASH: " .. tostring(err), "Cryptid")
 		return
+	end
+
+	-- Outside a blind the hand is normally empty. If ://CRASH was used inside a booster pack,
+	-- the pack drew cards into the hand and they would still be there after reloading, so put
+	-- them back into the deck (like closing the pack does) and drop the pack's own state.
+	local saved = G.ARGS.save_run
+	if saved and resting_state ~= G.STATES.SELECTING_HAND then
+		local areas = saved.cardAreas or {}
+		if areas.hand and areas.hand.cards and areas.deck and areas.deck.cards then
+			for _, card_table in ipairs(areas.hand.cards) do
+				card_table.highlighted = nil
+				table.insert(areas.deck.cards, 1, card_table)
+			end
+			areas.hand.cards = {}
+		end
+		areas.pack_cards = nil
+		if saved.GAME then
+			saved.GAME.PACK_INTERRUPT = nil
+		end
 	end
 
 	-- Write synchronously (same as the save manager thread's "save_run" handler)
