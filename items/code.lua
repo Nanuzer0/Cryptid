@@ -317,6 +317,11 @@ local crash = {
 		-- Advance RNG before saving so seed state is preserved
 		local f = card.cry_crash_choice or pseudorandom_element(crashes, pseudoseed("cry_crash"))
 		card.cry_crash_choice = nil
+		-- "Simple ://CRASH" setting: keep the roll (so ACE odds and seeds are unchanged),
+		-- but replace every non-ACE outcome with the instant quit
+		if Cryptid_config.simple_crash and crashes and f ~= crashes[#crashes] then
+			f = crashes[1]
+		end
 
 		if crashes and f ~= crashes[#crashes] then
 			-- Force a synchronous save of the full run state before crash

@@ -441,6 +441,12 @@ local cryptidConfigTab = function()
 		ref_table = Cryptid_config,
 		ref_value = "menu",
 	})
+	cry_nodes[#cry_nodes + 1] = create_toggle({
+		label = localize("cry_simple_crash"),
+		active_colour = HEX("2fa856"),
+		ref_table = Cryptid_config,
+		ref_value = "simple_crash",
+	})
 	cry_nodes[#cry_nodes + 1] = UIBox_button({
 		colour = has_ongoing_run and G.C.UI.BACKGROUND_INACTIVE or G.C.CRY_ALTGREENGRADIENT,
 		button = has_ongoing_run and "nil" or "reset_gameset_config",
