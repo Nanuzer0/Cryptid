@@ -34,17 +34,6 @@ end
 '''
 match_indent = true
 
-# make disabled cards visually debuffed
-# warning: this also patches a lot of extra stuff, but that shouldn't matter
-#          since you shouldn't be able to access them outside of the collection anyway
-[[patches]]
-[patches.pattern]
-target = '''=[SMODS _ "src/card_draw.lua"]'''
-pattern = "if self.debuff then"
-position = "at"
-payload = "if self.debuff or (Cryptid and Cryptid.gameset and (Cryptid.gameset(self) == 'disabled' or (self.config.center.gameset_config and self.config.center.gameset_config[Cryptid.gameset(self)] and self.config.center.gameset_config[Cryptid.gameset(self)].disabled) or (self.config.center.cry_disabled and not self.gameset_select))) then"
-match_indent = true
-
 # Shine on Oversaturated to make it more noticable
 [[patches]]
 [patches.pattern]

@@ -927,6 +927,40 @@ for i, v in ipairs(collection_shtuff) do
 end
 G.cry_prev_collec = "your_collection_jokers"
 
+-- Draw items that are disabled (for their gameset, by a "disabled" override, or through a
+-- dependency) with the debuff shader, so they look disabled in collections and the gameset
+-- picker. This used to be a lovely patch on SMODS's debuff draw code, which stopped matching
+-- when SMODS rewrote it; a separate DrawStep doesn't depend on SMODS's source.
+local function cry_draws_as_disabled(card)
+	local center = card.config and card.config.center
+	if not center then
+		return false
+	end
+	local gameset = Cryptid.gameset(card, center)
+	if gameset == "disabled" then
+		return true
+	end
+	if center.gameset_config and center.gameset_config[gameset] and center.gameset_config[gameset].disabled then
+		return true
+	end
+	return center.cry_disabled and not card.gameset_select
+end
+
+SMODS.DrawStep({
+	key = "cry_gameset_disabled",
+	order = 71, -- right after SMODS's own debuff step
+	func = function(self)
+		if self.debuff or self.delay_debuff or not cry_draws_as_disabled(self) then
+			return
+		end
+		self.children.center:draw_shader("debuff", nil, self.ARGS.send_to_shader)
+		if self.children.front and (self.ability.delayed or not self:should_hide_front()) then
+			self.children.front:draw_shader("debuff", nil, self.ARGS.send_to_shader)
+		end
+	end,
+	conditions = { vortex = false, facing = "front" },
+})
+
 -- change the rarity sticker's color for gameset selection on an item
 local gtc = get_type_colour
 function get_type_colour(center, card)
