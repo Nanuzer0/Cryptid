@@ -316,6 +316,7 @@ G.FUNCS.cry_gameset_confirm = function(e)
 	if G.selectedGameset then
 		G.PROFILES[G.SETTINGS.profile].cry_intro_complete = true
 		G.PROFILES[G.SETTINGS.profile].cry_gameset = G.selectedGameset
+		Cryptid.update_obj_registry()
 		G.SETTINGS.paused = false
 		G.gamesetUI:remove()
 		G.gateway:remove()
@@ -619,7 +620,7 @@ function Cryptid.get_gameset_config(center, gameset)
 	end
 	local base_config = center.cry_original_config or center.config or {}
 	local cfg = copy_table(base_config)
-	gameset = gameset or Cryptid.gameset(nil, center)
+	gameset = gameset or Cryptid.gameset(center)
 	if gameset and center.gameset_config and center.gameset_config[gameset] then
 		local gs_cfg = center.gameset_config[gameset]
 		for k, v in pairs(gs_cfg) do
@@ -641,6 +642,57 @@ function Cryptid.get_gameset_config(center, gameset)
 	return cfg
 end
 
+-- Puts a center's values for its current gameset onto the center itself: config, cost and
+-- the fields under gameset_config[gameset].center (e.g. rarity). Runs whenever gamesets are
+-- updated (Cryptid.update_obj_registry), not per card. The original values are saved the
+-- first time, so switching to a gameset that doesn't override a value restores it.
+function Cryptid.apply_gameset_to_center(center)
+	if type(center) ~= "table" or type(center.gameset_config) ~= "table" then
+		return
+	end
+	if not center.cry_original_config then
+		center.cry_original_config = copy_table(center.config or {})
+	end
+	if not center.cry_original_center then
+		-- values are wrapped so that originally-nil fields can be restored too
+		local originals = { cost = { value = center.cost } }
+		for _, gs_cfg in pairs(center.gameset_config) do
+			if type(gs_cfg) == "table" and type(gs_cfg.center) == "table" then
+				for k in pairs(gs_cfg.center) do
+					originals[k] = originals[k] or { value = center[k] }
+				end
+			end
+		end
+		center.cry_original_center = originals
+	end
+
+	local gameset = Cryptid.gameset(center)
+	local gs_cfg = center.gameset_config[gameset]
+	if type(gs_cfg) ~= "table" then
+		gs_cfg = {}
+	end
+	center.config = Cryptid.get_gameset_config(center, gameset)
+	center.cry_applied_gameset = gameset
+
+	for k, original in pairs(center.cry_original_center) do
+		local target = original.value
+		if type(gs_cfg.center) == "table" and gs_cfg.center[k] ~= nil then
+			target = gs_cfg.center[k]
+		end
+		if k == "cost" and gs_cfg.cost ~= nil then
+			target = gs_cfg.cost
+		end
+		if center[k] ~= target then
+			-- a disabled Joker isn't in the rarity pools; enable() adds it under the new rarity
+			if k == "rarity" and center.set_rarity and not center.cry_disabled then
+				center:set_rarity(target)
+			else
+				center[k] = target
+			end
+		end
+	end
+end
+
 -- set_ability accounts for gamesets
 function Card:get_gameset(center)
 	return Cryptid.gameset(self, center)
@@ -659,43 +711,34 @@ function Card:set_ability(center, y, z)
 		center.config = {} --crashproofing
 	end
 
-	-- Preserve pristine original center config before any gameset mutations
-	if not center.cry_original_config then
-		center.cry_original_config = copy_table(center.config)
-	end
-
 	csa(self, center, y, z)
 	self.ability = self.ability or {}
+	if not center.gameset_config then
+		return
+	end
 	local cur_gameset = self:get_gameset(center)
-	local effective_config = Cryptid.get_gameset_config(center, cur_gameset)
 
-	-- Update center.config to effective_config so tooltips and functions reading center.config get current gameset values
-	center.config = copy_table(effective_config)
-	Cryptid.merge_table(self.ability, effective_config)
-
-	if effective_config.cost then
-		self.base_cost = effective_config.cost
-		if self.set_cost then
-			self:set_cost()
+	-- The center already holds the values of the gameset it was set up for
+	-- (Cryptid.apply_gameset_to_center). Only a card that uses a different gameset, like the
+	-- cards in the gameset picker, needs that gameset's values, and only on the card itself.
+	if cur_gameset ~= center.cry_applied_gameset then
+		local effective_config = Cryptid.get_gameset_config(center, cur_gameset)
+		Cryptid.merge_table(self.ability, effective_config)
+		local cost = effective_config.cost
+		if cost == nil and center.cry_original_center then
+			cost = center.cry_original_center.cost.value
+		end
+		if cost then
+			self.base_cost = cost
+			if self.set_cost then
+				self:set_cost()
+			end
 		end
 	end
 
-	if cur_gameset and center.gameset_config and center.gameset_config[cur_gameset] then
-		local gs_cfg = center.gameset_config[cur_gameset]
-		if gs_cfg.disabled then
-			self.cry_disabled = true
-		end
-		if gs_cfg.center and not self.gameset_select then
-			for k, v in pairs(gs_cfg.center) do
-				self[k] = v
-				if self.config and self.config.center then
-					self.config.center[k] = v
-				end
-				if k == "rarity" then
-					center:set_rarity(v)
-				end
-			end
-		end
+	local gs_cfg = cur_gameset and center.gameset_config[cur_gameset]
+	if gs_cfg and gs_cfg.disabled then
+		self.cry_disabled = true
 	end
 end
 
@@ -1198,23 +1241,7 @@ function Cryptid.update_obj_registry(m, force_enable)
 	if m.obj_table then
 		for k, v in pairs(m.obj_table) do
 			if v.mod and (v.mod.id == "Cryptid" or Cryptid.mod_gameset_whitelist[v.mod.id]) then
-				if v.set == "Joker" then
-					v.cry_original_rarity = v.cry_original_rarity or v.rarity
-					local set_gameset = Cryptid.gameset(v)
-					local target_rarity = v.cry_original_rarity
-					if v.gameset_config and v.gameset_config[set_gameset] and v.gameset_config[set_gameset].center then
-						for ck, cv in pairs(v.gameset_config[set_gameset].center) do
-							if ck == "rarity" then
-								target_rarity = cv
-							else
-								v[ck] = cv
-							end
-						end
-					end
-					if v.set_rarity and v.rarity ~= target_rarity then
-						v:set_rarity(target_rarity)
-					end
-				end
+				Cryptid.apply_gameset_to_center(v)
 				local en = force_enable or Cryptid.enabled(k)
 				if en == true then
 					if v.cry_disabled then
