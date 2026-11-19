@@ -213,6 +213,21 @@ G.hand.config.card_limit <= 0 and #G.hand.cards == 0 and not G.PROFILES[G.SETTIN
 '''
 match_indent = true
 
+# Same exception for SMODS's own copy of the 0-hand-size game over check.
+# SMODS.draw_cards runs when hand size goes up mid-round (e.g. selling a Stuntman at 0 hand size)
+# and checks the limit before the increase is applied, so without this the run ends.
+[[patches]]
+[patches.pattern]
+target = '=[SMODS _ "src/utils.lua"]'
+pattern = '''
+G.hand.config.card_limit <= 0 and #G.hand.cards == 0 then
+'''
+position = "at"
+payload = '''
+G.hand.config.card_limit <= 0 and #G.hand.cards == 0 and not G.PROFILES[G.SETTINGS.profile].cry_none then
+'''
+match_indent = true
+
 [[patches]]
 [patches.pattern]
 target = "card.lua"
