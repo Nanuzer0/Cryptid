@@ -2616,3 +2616,18 @@ function play_sound(sound_code, per, vol)
 	end
 	return play_sound_ref(sound_code, per, vol)
 end
+
+-- SMODS only sets G.hand's card_limits.old_slots while the hand has free slots, then compares it
+-- against total_slots when drawing and when hand size changes. With 0 hand size (e.g. 4 Stuntmen)
+-- and the None hand unlocked (which skips the vanilla game over), old_slots stays nil and the
+-- comparison crashes. handle_card_limit runs every frame, so make sure old_slots exists first.
+if CardArea.handle_card_limit then
+	local handle_card_limit_ref = CardArea.handle_card_limit
+	function CardArea:handle_card_limit(...)
+		local limits = G.hand and self == G.hand and self.config and self.config.card_limits
+		if limits and limits.old_slots == nil then
+			limits.old_slots = limits.total_slots or 0
+		end
+		return handle_card_limit_ref(self, ...)
+	end
+end
