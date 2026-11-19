@@ -5408,7 +5408,6 @@ return {
 			k_cry_program_pack = "Program Pack",
 			k_cry_meme_pack = "Meme Pack",
 			k_cry_baneful_pack = "Baneful Buffoon Pack",
-			cry_baneful_warning = "Skipping will Banish rightmost Joker",
 
 			cry_critical_hit_ex = "Critical Hit!",
 			cry_critical_miss_ex = "Critical Miss!",

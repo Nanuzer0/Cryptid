@@ -5099,7 +5099,6 @@ return {
 			cry_critical_hit_ex = "Kritischer Treffer!",
 			cry_critical_miss_ex = "Kritisch verfehlt!",
 			k_cry_baneful_pack = "Unheilvolles Clownspaket",
-			cry_baneful_warning = "Überspringen verbannt den Joker ganz rechts",
 
 			cry_potion1 = "-1 zu allen Handleveln",
 			cry_potion2 = "X1.15 Blindgröße",

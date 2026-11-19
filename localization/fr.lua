@@ -5160,7 +5160,6 @@ return {
 			k_cry_program_pack = "Paquet Programme",
 			k_cry_meme_pack = "Paquet Meme",
 			k_cry_baneful_pack = "Paquet Bouffon Maléfique",
-			cry_baneful_warning = "Passer bannira le Joker le plus à droite",
 
 			cry_critical_hit_ex = "Coup critique!",
 			cry_critical_miss_ex = "Échec critique!",

@@ -5279,7 +5279,6 @@ return {
 			k_cry_program_pack = "プログラムパック",
 			k_cry_meme_pack = "ミームパック",
 			k_cry_baneful_pack = "不吉な道化師パック",
-			cry_baneful_warning = "スキップすると右端のジョーカーを消滅させる",
 
 			cry_critical_hit_ex = "Critical Hit!",
 			cry_critical_miss_ex = "Critical Miss!",

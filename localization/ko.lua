@@ -5141,7 +5141,6 @@ return {
 			k_cry_program_pack = "프로그램 팩",
 			k_cry_meme_pack = "밈 팩",
 			k_cry_baneful_pack = "해로운 부푼 팩",
-			cry_baneful_warning = "스킵하면 가장 오른쪽 조커가 추방됩니다",
 
 			cry_critical_hit_ex = "치명타!",
 			cry_critical_miss_ex = "치명적 실수!",

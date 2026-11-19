@@ -5136,7 +5136,6 @@ return {
 			k_cry_program_pack = "程序补充包",
 			k_cry_meme_pack = "玩梗补充包",
 			k_cry_baneful_pack = "诅咒小丑包",
-			cry_baneful_warning = "跳过将会放逐最右侧的小丑",
 
 			cry_critical_hit_ex = "暴击！",
 			cry_critical_miss_ex = "致命失误！",

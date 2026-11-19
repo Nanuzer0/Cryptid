@@ -1945,36 +1945,6 @@ G.FUNCS.skip_booster = function(e)
 			e.disable_button = nil
 			-- print("disble")
 		end
-	else
-		if SMODS.OPENED_BOOSTER.config.center.cry_baneful_punishment then
-			if not G.GAME.banned_keys then
-				G.GAME.banned_keys = {}
-			end -- i have no idea if this is always initialised already tbh
-			if not G.GAME.cry_banned_pcards then
-				G.GAME.cry_banished_keys = {}
-			end
-			local c = nil
-			c = G.jokers.cards[#G.jokers.cards] --fallback to rightmost if somehow, you skipped without disabling and its unskippable.
-			--Iterate backwards to get the rightmost valid (non eternal or cursed) Joker
-			for i = #G.jokers.cards, 1, -1 do
-				if
-					not (SMODS.is_eternal(G.jokers.cards[i]) or G.jokers.cards[i].config.center.rarity == "cry_cursed")
-				then
-					c = G.jokers.cards[i]
-					break
-				end
-			end
-			if c.config.center.rarity == "cry_exotic" then
-				check_for_unlock({ type = "what_have_you_done" })
-			end
-
-			G.GAME.cry_banished_keys[c.config.center.key] = true
-			if G.GAME.blind then
-				G.GAME.blind:wiggle()
-				G.GAME.blind.triggered = true
-			end
-			c:start_dissolve()
-		end
 	end
 	banefulSkipPenalty(e)
 end
