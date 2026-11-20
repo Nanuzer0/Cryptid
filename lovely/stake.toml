@@ -4,20 +4,7 @@ dump_lua = true
 priority = -1
 
 
-# Yellow Stake - perishable and rental effects on consumable
-[[patches]]
-[patches.pattern]
-target = "functions/state_events.lua"
-pattern = "if G.GAME.round_resets.ante == G.GAME.win_ante and G.GAME.blind:get_type() == 'Boss' then"
-position = "before"
-payload = '''
-local i = 1
-while i <= #G.jokers.cards do
-    local gone = G.jokers.cards[i]:calculate_banana()
-    if not gone then i = i + 1 end
-end
-'''
-match_indent = true
+# Banana Jokers are rolled in the mod calculate (lib/calculate.lua).
 
 # Yellow Stake - perishable and rental effects on cards in deck and discard pile
 # Double Down

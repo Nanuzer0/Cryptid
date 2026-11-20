@@ -8,6 +8,20 @@ SMODS.current_mod.calculate = function(self, context)
 	if context.ante_change and SMODS.ante_end then
 		Cryptid.apply_ante_tax()
 	end
+	-- Banana Jokers roll to go extinct at end of round. This runs here instead of in the
+	-- sticker's calculate so debuffed Jokers roll too (SMODS skips stickers on debuffed cards).
+	if
+		context.end_of_round
+		and context.main_eval
+		and not context.individual
+		and not context.repetition
+		and not context.retrigger_joker
+		and G.jokers
+	then
+		for _, joker in ipairs(G.jokers.cards) do
+			joker:calculate_banana()
+		end
+	end
 end
 
 -- deal with Rigged and Fragile when scoring a playing card
