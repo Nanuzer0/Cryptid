@@ -131,20 +131,6 @@ payload = '''
 '''
 match_indent = true
 
-## Force abstract cards to be only slightly above stone cards 
-
-[[patches]]
-[patches.pattern]
-target = "card.lua"
-pattern = '''elseif self.config.center.no_rank then'''
-position = "before"
-payload = '''
-if Cryptid.cry_enhancement_get_specific_rank(self) == 'cry_abstract' then
-    mult = -9000
-end
-'''
-match_indent = true
-
 ## Force abstracted to not be face cards
 
 [[patches]]

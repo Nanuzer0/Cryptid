@@ -37,15 +37,6 @@ end
 '''
 match_indent = true
 
-# Prevent counting CCD consumables for pack uses
-[[patches]]
-[patches.pattern]
-target = "functions/button_callbacks.lua"
-pattern = "if area == G.consumeables then"
-position = "at"
-payload = "if area == G.consumeables or area == G.hand then"
-match_indent = true
-
 # Fix bugs from removing CCD
 # This really shouldn't be in the card drawing code, but it doesn't really matter since that's where it crashes anyway lol
 [[patches]]
@@ -70,32 +61,9 @@ else
 match_indent = true
 
 #Fixes for negative CCD cards
-[[patches]]
-[patches.pattern]
-target = "card.lua"
-pattern = """
-if self.edition.type == 'negative' and self.ability.consumeable then
-    badges[#badges + 1] = 'negative_consumable'
-elseif self.edition.type == 'negative' and (self.ability.set == 'Enhanced' or self.ability.set == 'Default') then
-    badges[#badges + 1] = 'negative_playing_card'
-"""
-position = "at"
-payload = """
-if self.edition.type == 'negative' and self.playing_card then
-    badges[#badges + 1] = 'negative_playing_card'
-elseif self.edition.type == 'negative' and self.ability.consumeable then
-    badges[#badges + 1] = 'negative_consumable'
-"""
-match_indent = true
-
-[[patches]]
-[patches.pattern]
-target = """=[SMODS _ "src/overrides.lua"]"""
-pattern = """if self.ability.consumeable then"""
-position = "at"
-payload = """if self.ability.consumeable and not self.playing_card then"""
-match_indent = true
-
+# (The badge and slot patches for negative CCD cards are gone: SMODS picks the badge
+# from the card's area and counts edition slots per area, so CCD cards in hand count
+# as playing cards. Using a CCD card from hand in a pack is also handled by SMODS.)
 [[patches]]
 [patches.pattern]
 target = "card.lua"

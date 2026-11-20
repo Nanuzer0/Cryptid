@@ -218,15 +218,6 @@ end
 '''
 match_indent = true
 
-# no "Again!" text if a card will shatter
-[[patches]]
-[patches.pattern]
-target = "functions/state_events.lua"
-pattern = '''if reps[j] ~= 1 then'''
-position = "at"
-payload = '''if reps[j] ~= 1 and (not scoring_hand or not scoring_hand[i] or not scoring_hand[i].will_shatter) then'''
-match_indent = true
-
 # m
 [[patches]]
 [patches.pattern]
@@ -586,23 +577,6 @@ elseif v.source_gate then
         add = true
     end
 '''
-match_indent = true
-
-#Make negative playing cards not take up space even when debuffed
-[[patches]]
-[patches.pattern]
-target = "cardarea.lua"
-pattern = """if not card.debuff and card.edition and card.edition.card_limit and (self == G.hand) then"""
-position = "at"
-payload = """if card.edition and card.edition.card_limit and (self == G.hand) then"""
-match_indent = true
-
-[[patches]]
-[patches.pattern]
-target = "functions/state_events.lua"
-pattern = """limit = limit - 1 + (not card.debuff and card.edition and card.edition.card_limit or 0)"""
-position = "at"
-payload = """limit = limit - 1 + (card.edition and card.edition.card_limit or 0)"""
 match_indent = true
 
 #Fix SMODS.cards_to_draw desync when drawing negative cards (especially when drawing the entire deck)
