@@ -206,31 +206,34 @@ local choco_base_event = {
 }
 local choco1 = {
 	object_type = "Event",
+	-- Creates a Ghost, so it's disabled (and never rolled) whenever Ghost is.
+	dependencies = {
+		items = {
+			"j_cry_ghost",
+		},
+	},
 	key = "choco1",
 	loc_vars = function(self, info_queue, center)
-		local _, prob_den = SMODS.get_probability_vars(self, 1, 6, "Chocolate Dice 1")
-		info_queue[#info_queue + 1] = { set = "Other", key = self.key } --todo specific_vars
+		info_queue[#info_queue + 1] = { set = "Other", key = self.key }
 		info_queue[#info_queue + 1] = { set = "Other", key = "cry_flickering_desc", specific_vars = { 5 } }
-		info_queue[#info_queue + 1] = {
-			set = "Joker",
-			key = "j_cry_ghost",
-			specific_vars = { SMODS.get_probability_vars(self, 1, 2, "Chocolate Dice 1"), prob_den },
-		}
+		if G.P_CENTERS.j_cry_ghost then
+			-- Ghost's own loc_vars fills in its odds.
+			info_queue[#info_queue + 1] = G.P_CENTERS.j_cry_ghost
+		end
 	end,
 	start = function(self)
 		G.GAME.events[self.key] = true
-		local areas = { "jokers", "deck", "hand", "play", "discard" }
-		for k, v in pairs(areas) do
-			for i = 1, #G[v].cards do
-				if SMODS.pseudorandom_probability(self, "cry_choco_possession", 1, 3, "Chocolate Dice 1") then
-					SMODS.Stickers.cry_flickering:apply(G[v].cards[i], true)
+		local flickering = SMODS.Stickers.cry_flickering
+		if flickering then
+			for _, area in ipairs({ "jokers", "deck", "hand", "play", "discard" }) do
+				for _, card in ipairs(G[area] and G[area].cards or {}) do
+					if SMODS.pseudorandom_probability(self, "cry_choco_possession", 1, 3, "Chocolate Dice 1") then
+						flickering:apply(card, true)
+					end
 				end
 			end
 		end
-		--create a ghost
-		local card = create_card("Joker", G.jokers, nil, nil, nil, nil, "j_cry_ghost")
-		card:add_to_deck()
-		G.jokers:emplace(card)
+		SMODS.add_card({ key = "j_cry_ghost" })
 	end,
 }
 local choco2 = {
@@ -2264,7 +2267,7 @@ items = {
 	wrapped,
 	choco_dice,
 	choco_base_event,
-	--choco1,
+	choco1,
 	choco2,
 	choco3,
 	potion,
@@ -2281,8 +2284,8 @@ items = {
 	candy_basket,
 	blacklist,
 	rotten_egg,
-	--ghost,
-	--possessed,
+	ghost,
+	possessed,
 	spookydeck,
 	candy_dagger,
 	candy_cane,
