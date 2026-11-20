@@ -574,7 +574,9 @@ local choco7 = {
 		G.jokers:emplace(card)
 	end,
 	calculate = function(self, context)
-		if context.start_shop then
+		-- SMODS's starting_shop, not Cryptid's start_shop: start_shop also fires when a saved run
+		-- is continued in the shop, which gave another Tag.
+		if context.post_jokers and context.starting_shop then
 			local tag = Tag("tag_cry_rework")
 			if not tag.ability then
 				tag.ability = {}
@@ -586,17 +588,20 @@ local choco7 = {
 	end,
 	init = function(self)
 		--candy gives $3
+		-- Each candy counts once: add_to_deck can be called again on a card already in the deck.
 		local catd = Card.add_to_deck
 		function Card:add_to_deck(debuff)
-			if not debuff and self.config.center.rarity == "cry_candy" then
-				if G.GAME.events.ev_cry_choco7 then
+			local events = G.GAME.events or {}
+			if not debuff and not self.added_to_deck and self.config.center.rarity == "cry_candy" then
+				if events.ev_cry_choco7 then
 					ease_dollars(3)
 				end
-				if G.GAME.events.ev_cry_choco8 then
-					SMODS.add_card({
-						set = "Food",
-						area = G.jokers,
-					})
+				if events.ev_cry_choco8 and not self.cry_candy_rain_no_food then
+					-- The Food pool includes candies; a candy from this doesn't give another Food Joker.
+					local args = { set = "Food", area = G.jokers }
+					local food = SMODS.create_card(args)
+					food.cry_candy_rain_no_food = true
+					SMODS.add_to_deck(food, args)
 				end
 			end
 			return catd(self, debuff)
@@ -607,7 +612,7 @@ local choco8 = {
 	object_type = "Event",
 	key = "choco8",
 	calculate = function(self, context)
-		if context.cash_out then
+		if context.post_jokers and context.cash_out then
 			for i = 1, G.GAME.current_round.hands_left do
 				local card = create_card("Joker", G.jokers, nil, "cry_candy", nil, nil, nil, "cry_choco8")
 				card:add_to_deck()
