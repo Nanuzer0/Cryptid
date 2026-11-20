@@ -25,6 +25,17 @@ It needs the same mods as upstream Cryptid: [Steamodded](https://github.com/Stea
   - Disabled items look debuffed again in the collection.
   - Disabled challenges are greyed out reliably.
   - Antimatter deck descriptions can no longer get stuck on other decks.
+- **Restored after Steamodded updates** (these had silently stopped working)
+  - Banana Jokers can go extinct at the end of the round again.
+  - Sixth Sense can't destroy an Eternal 6.
+  - Shiny tags use their shiny art.
+  - ://CRASH glitches the screen again.
+  - Oversaturated cards have their shine.
+  - The ascension power text clears after a hand is scored.
+  - After using a Planet, the selected hand (or None) is shown again.
+  - Jimbo is a Jolly Joker with Cryptid's colours.
+  - Cross-mod content loads its art and sounds from its own mod.
+  - Card descriptions format big bonus values safely, and early xChips/xMult effects can't crash.
 
 ## Changes and additions
 
@@ -39,7 +50,6 @@ It needs the same mods as upstream Cryptid: [Steamodded](https://github.com/Stea
 
 ## To do
 
-- Fix the lovely patches that no longer match current Steamodded. Each one is a feature or fix that's silently switched off.
 - Rewrite the Chocolate Die events, with Ghost kept.
 - Rewrite the Antimatter Sleeve (CardSleeves support).
 - Rewrite the JokerDisplay support.
