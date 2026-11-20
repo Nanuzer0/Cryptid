@@ -241,11 +241,27 @@ local choco2 = {
 	key = "choco2",
 	--everything here is done with lovely patches or hooks, search for ev_cry_choco2
 	calculate = function(self, context)
-		if context.cash_out then
+		if context.post_jokers and context.cash_out then
 			G.GAME.current_round.rerolled = false
 		end
 	end,
 	init = function(self)
+		-- No skipping: the Small and Big Blinds show no tag and no Skip button, as for unskippable
+		-- blinds. skip_blind is blocked too, in case something calls it anyway.
+		local blind_tag_ref = create_UIBox_blind_tag
+		function create_UIBox_blind_tag(blind_choice, run_info)
+			if G.GAME.events and G.GAME.events.ev_cry_choco2 then
+				return nil
+			end
+			return blind_tag_ref(blind_choice, run_info)
+		end
+		local skip_blind_ref = G.FUNCS.skip_blind
+		G.FUNCS.skip_blind = function(e)
+			if G.GAME.events and G.GAME.events.ev_cry_choco2 then
+				return
+			end
+			return skip_blind_ref(e)
+		end
 		--track if rerolled
 		local gfrs = G.FUNCS.reroll_shop
 		G.FUNCS.reroll_shop = function(e)
