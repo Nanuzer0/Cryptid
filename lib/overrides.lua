@@ -2552,3 +2552,17 @@ if CardArea.handle_card_limit then
 		return handle_card_limit_ref(self, ...)
 	end
 end
+
+-- ://CRASH glitches the screen by setting the global glitched_intensity. SMODS now draws the CRT
+-- effect through its CRT ScreenShader (always sending glitch_intensity = 0), so pass it on there.
+local crt_shader = SMODS.ScreenShaders and SMODS.ScreenShaders.CRT
+if crt_shader and type(crt_shader.send_vars) == "function" then
+	local crt_send_vars_ref = crt_shader.send_vars
+	crt_shader.send_vars = function(self, ...)
+		local vars = crt_send_vars_ref(self, ...)
+		if type(vars) == "table" and glitched_intensity then
+			vars.glitch_intensity = glitched_intensity
+		end
+		return vars
+	end
+end
