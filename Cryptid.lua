@@ -149,7 +149,8 @@ local function process_items(f, mod)
 						key = false,
 						atlas = false,
 					}
-					item.mod_path = mod.path
+					-- SMODS loads atlas/sound/shader files from (path_mod or mod).path
+					item.path_mod = mod
 					if item.key then
 						if item.object_type and SMODS[item.object_type].class_prefix then
 							item.key = SMODS[item.object_type].class_prefix .. "_" .. mod.prefix .. "_" .. item.key
