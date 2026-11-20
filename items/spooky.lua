@@ -301,60 +301,64 @@ local choco3 = {
 	end,
 	finish = function(self)
 		--Reverse all potion effects
-		if G.GAME.events[self.key].potions and G.GAME.events[self.key].potions[2] then
-			G.GAME.starting_params.ante_scaling = G.GAME.starting_params.ante_scaling
-				/ (1.15 ^ G.GAME.events[self.key].potions[2])
+		local state = G.GAME.events and G.GAME.events[self.key]
+		local potions = type(state) == "table" and state.potions or {}
+		if potions[2] then
+			G.GAME.starting_params.ante_scaling = G.GAME.starting_params.ante_scaling / (1.15 ^ potions[2])
 		end
-		if G.GAME.events[self.key].potions and G.GAME.events[self.key].potions[3] then
-			G.GAME.round_resets.hands = G.GAME.round_resets.hands + G.GAME.events[self.key].potions[3]
-			ease_hands_played(G.GAME.events[self.key].potions[3])
-			G.GAME.round_resets.discards = G.GAME.round_resets.discards + G.GAME.events[self.key].potions[3]
-			ease_discard(G.GAME.events[self.key].potions[3])
+		if potions[3] then
+			G.GAME.round_resets.hands = G.GAME.round_resets.hands + potions[3]
+			ease_hands_played(potions[3])
+			G.GAME.round_resets.discards = G.GAME.round_resets.discards + potions[3]
+			ease_discard(potions[3])
 		end
-		G.GAME.events[self.key] = nil
+		if G.GAME.events then
+			G.GAME.events[self.key] = nil
+		end
 	end,
 	calculate = function(self, context)
-		--bug: if this event finishes and starts, every potion gets instantly destroyed
 		--bug: crashes if all 3 are used on blind skip
+		local state = G.GAME.events[self.key]
+		-- Only the pre_jokers pass: the event starts during the boss's end_of_round (from the
+		-- Chocolate Die), so the post_jokers pass of that same context would drink every potion.
 		if
-			context.pre_jokers
+			type(state) == "table"
+			and context.pre_jokers
 			and (context.skip_blind or (context.end_of_round and not context.individual and not context.repetition))
 			and not context.blueprint
 			and not context.retrigger_joker
 		then
+			state.potions = state.potions or {}
 			--Detect if a potion has been used
 			local used_potion = false
 			for i = 1, num_potions do
-				if G.GAME.events[self.key].potions[i] then
+				if state.potions[i] then
 					used_potion = true
 					break
 				end
 			end
-			if used_potion then
-				G.E_MANAGER:add_event(Event({
-					func = function()
-						for i = #G.consumeables.cards, 1, -1 do
-							if G.consumeables.cards[i].config.center.key == "c_cry_potion" then
-								G.consumeables.cards[i]:start_dissolve()
-							end
-						end
-						return true
-					end,
-				}))
-			else
-				--these animations are still a bit goofy, idk why
-				G.E_MANAGER:add_event(Event({
-					func = function()
-						for i = #G.consumeables.cards, 1, -1 do
-							if G.consumeables.cards[i].config.center.key == "c_cry_potion" then
-								G.consumeables.cards[i].config.center:use(G.consumeables.cards[i], G.consumeables)
-								G.consumeables.cards[i]:start_dissolve()
-							end
-						end
-						return true
-					end,
-				}))
+			-- Collect the potions now: a second Chocolate Die can restart this event before the
+			-- queued event runs, and its new potions mustn't be drunk or destroyed with these.
+			local potion_cards = {}
+			for _, consumeable in ipairs(G.consumeables and G.consumeables.cards or {}) do
+				if consumeable.config.center.key == "c_cry_potion" then
+					potion_cards[#potion_cards + 1] = consumeable
+				end
 			end
+			G.E_MANAGER:add_event(Event({
+				func = function()
+					for _, potion_card in ipairs(potion_cards) do
+						if not potion_card.REMOVED then
+							if not used_potion then
+								--these animations are still a bit goofy, idk why
+								potion_card.config.center:use(potion_card, G.consumeables)
+							end
+							potion_card:start_dissolve()
+						end
+					end
+					return true
+				end,
+			}))
 		end
 	end,
 	--todo: loc_vars potions
@@ -383,12 +387,12 @@ local potion = {
 		return false
 	end,
 	use = function(self, card, area, copier)
-		if not (G.GAME.events and G.GAME.events.ev_cry_choco3) then
+		local state = G.GAME.events and G.GAME.events.ev_cry_choco3
+		if type(state) ~= "table" then
 			return
 		end -- Just in case a potion is found out side of the event
-		G.GAME.events.ev_cry_choco3.potions[card.ability.random_event] = (
-			G.GAME.events.ev_cry_choco3.potions[card.ability.random_event] or 0
-		) + 1
+		state.potions = state.potions or {}
+		state.potions[card.ability.random_event] = (state.potions[card.ability.random_event] or 0) + 1
 		--Announce event
 		G.E_MANAGER:add_event(Event({
 			func = function()
@@ -411,10 +415,13 @@ local potion = {
 			)
 			update_hand_text({ delay = 0 }, { mult = "-", StatusText = true })
 			update_hand_text({ delay = 0 }, { chips = "-", StatusText = true })
-			update_hand_text({ sound = "button", volume = 0.7, pitch = 0.9, delay = 0 }, { level = "+1" })
+			update_hand_text({ sound = "button", volume = 0.7, pitch = 0.9, delay = 0 }, { level = "-1" })
 			delay(1.3)
+			-- Hands already at level 1 stay there.
 			for k, v in pairs(G.GAME.hands) do
-				level_up_hand(card, k, true, -1)
+				if to_big(v.level) > to_big(1) then
+					level_up_hand(card, k, true, -1)
+				end
 			end
 			update_hand_text(
 				{ sound = "button", volume = 0.7, pitch = 1.1, delay = 0 },
