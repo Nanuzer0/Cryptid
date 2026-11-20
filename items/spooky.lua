@@ -524,17 +524,12 @@ local choco5 = { --bloodsucker
 			and not context.retrigger_joker
 		then
 			if context.destroying_card:is_suit("Hearts") or context.destroying_card:is_suit("Diamonds") then
-				if SMODS.pseudorandom_probability(self, "cry_choco_blood", 1, 3, "Chocolate Dice 5") then
-					context.destroying_card.will_shatter = true
-					local destroying_card = context.destroying_card
-					G.E_MANAGER:add_event(Event({
-						func = function()
-							if destroying_card then
-								destroying_card:start_dissolve()
-							end
-							return true
-						end,
-					}))
+				if
+					SMODS.pseudorandom_probability(self, "cry_choco_blood", 1, 3, "Chocolate Dice 5")
+					and not SMODS.is_eternal(context.destroying_card)
+				then
+					-- Destroyed the way Jokers destroy played cards, so "card destroyed" effects run.
+					return { remove = true }
 				end
 			end
 		end
