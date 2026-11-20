@@ -75,15 +75,32 @@ local function is_in_evaluated_area(card)
 	return false
 end
 
-local smcc = SMODS.calculate_context
-function SMODS.calculate_context(context, return_table, no_resolve)
+-- Runs calculate on every active event (Chocolate Die) for one pass, "pre_jokers" or "post_jokers".
+-- Events see each context in both passes, so their effects must check one of the two flags.
+-- An event can return flags (e.g. { remove = true } for context.destroying_card); they're
+-- collected into `flags` and returned by SMODS.calculate_context.
+local function calculate_events(context, pass, flags)
+	if not (G.GAME and G.GAME.events) then
+		return
+	end
 	for k, v in pairs(SMODS.Events) do
-		if G.GAME.events and G.GAME.events[k] then
-			context.pre_jokers = true
-			v:calculate(context)
-			context.pre_jokers = nil
+		if G.GAME.events[k] then
+			context[pass] = true
+			local res = v:calculate(context)
+			context[pass] = nil
+			if type(res) == "table" then
+				for flag, value in pairs(res) do
+					flags[flag] = value
+				end
+			end
 		end
 	end
+end
+
+local smcc = SMODS.calculate_context
+function SMODS.calculate_context(context, return_table, no_resolve)
+	local event_flags = {}
+	calculate_events(context, "pre_jokers", event_flags)
 	if context.using_consumeable then
 		local _card = context.consumeable
 		--calculate the joker effects
@@ -155,11 +172,12 @@ function SMODS.calculate_context(context, return_table, no_resolve)
 			SMODS.no_resolve = nil
 		end
 	end
-	for k, v in pairs(SMODS.Events) do
-		if G.GAME.events and G.GAME.events[k] then
-			context.post_jokers = true
-			v:calculate(context)
-			context.post_jokers = nil
+	calculate_events(context, "post_jokers", event_flags)
+	-- Callers that pass return_table collect effects instead of reading flags.
+	if next(event_flags) and not return_table then
+		ret = ret or {}
+		for flag, value in pairs(event_flags) do
+			ret[flag] = value
 		end
 	end
 	return ret
@@ -265,7 +283,9 @@ function Card:calculate_joker(context)
 				ret.message = ret.message .. "?"
 			end
 		end
-		callback(context.blueprint_card or self, ret, context.retrigger_joker)
+		if callback then
+			callback(context.blueprint_card or self, ret, context.retrigger_joker)
+		end
 	end
 	if not context.blueprint and (active_side.ability.set == "Joker") and not active_side.debuff then
 		if ret or trig then
