@@ -20,6 +20,25 @@ function G.FUNCS.evaluate_round()
 	end
 end
 
+-- Clear the ascension power text once the hand has scored, at the same time the hand name is
+-- cleared (that happens 0.4s into SMODS's final scoring). Non-blocking, so it adds no delay.
+if evaluate_play_final_scoring then
+	local final_scoring_ref = evaluate_play_final_scoring
+	function evaluate_play_final_scoring(...)
+		G.E_MANAGER:add_event(Event({
+			trigger = "after",
+			delay = 0.4,
+			blocking = false,
+			func = function()
+				G.GAME.current_round.current_hand.cry_asc_num = 0
+				G.GAME.current_round.current_hand.cry_asc_num_text = ""
+				return true
+			end,
+		}))
+		return final_scoring_ref(...)
+	end
+end
+
 -- this is a hook to make funny "x of a kind"/"flush x" display text
 local pokerhandinforef = G.FUNCS.get_poker_hand_info
 function G.FUNCS.get_poker_hand_info(_cards)

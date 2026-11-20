@@ -97,21 +97,7 @@ update_hand_text({delay = 0}, {mult = Cryptid.ascend(G.GAME.hands[hand].mult), S
 '''
 match_indent = true
 
-# the removal (this is slightly invasive, should switch to regex)
-[[patches]]
-[patches.pattern]
-target = "functions/state_events.lua"
-pattern = '''
-check_and_set_high_score('hand', hand_chips*mult)
-'''
-position = "before"
-payload = '''
-    G.E_MANAGER:add_event(Event({
-      trigger = 'immediate',
-      func = (function() G.GAME.current_round.current_hand.cry_asc_num = 0;G.GAME.current_round.current_hand.cry_asc_num_text = '';return true end)
-    }))
-'''
-match_indent = true
+# the removal: hooked onto evaluate_play_final_scoring in lib/ascended.lua
 
 # the rare cardarea inject
 [[patches]]
