@@ -43,6 +43,30 @@ function Cryptid.has_ongoing_run()
 	return (G.STAGE == G.STAGES.RUN) or not not love.filesystem.getInfo(G.SETTINGS.profile .. "/" .. "save.jkr")
 end
 
+-- Opens a free Booster Pack (a random one unless pack_key is given), the way booster Tags do.
+-- use_card is told not to save: in the shop it would save a "reopen this pack" action, but this
+-- pack isn't one of the shop's cards.
+function Cryptid.open_booster(pack_key)
+	local center = G.P_CENTERS[pack_key or get_pack("cry_take_one").key]
+	if not center then
+		return
+	end
+	local card = Card(
+		G.play.T.x + G.play.T.w / 2 - G.CARD_W * 1.27 / 2,
+		G.play.T.y + G.play.T.h / 2 - G.CARD_H * 1.27 / 2,
+		G.CARD_W * 1.27,
+		G.CARD_H * 1.27,
+		G.P_CARDS.empty,
+		center,
+		{ bypass_discovery_center = true, bypass_discovery_ui = true }
+	)
+	card.cost = 0
+	card.from_tag = true
+	G.FUNCS.use_card({ config = { ref_table = card } }, nil, true)
+	card:start_materialize()
+	return card
+end
+
 -- More advanced version of find joker for things that need to find very specific things
 function Cryptid.advanced_find_joker(name, rarity, edition, ability, non_debuff, area)
 	local jokers = {}

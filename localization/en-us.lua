@@ -4876,7 +4876,7 @@ return {
 			ev_cry_choco6 = {
 				name = "6: Please Take One",
 				text = {
-					"At {C:attention}end of round{}, open a",
+					"When entering the {C:attention}shop{}, open a",
 					"random {C:attention}Booster{} Pack",
 					"{C:inactive,s:0.7}As you stroll down the streets, you spot a",
 					"{C:inactive,s:0.7}box of various Booster Packs. Might as well grab one!",

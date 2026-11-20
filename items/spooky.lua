@@ -539,30 +539,23 @@ local choco6 = { --please take one
 	object_type = "Event",
 	key = "choco6",
 	calculate = function(self, context)
-		if context.pre_cash then
+		-- SMODS's starting_shop skips shops loaded from a save, so continuing a run in the shop
+		-- doesn't give another pack.
+		if context.post_jokers and context.starting_shop then
+			-- Two events deep, so the pack opens after the shop's own save_run event.
 			G.E_MANAGER:add_event(Event({
 				func = function()
-					local key = get_pack("cry_take_one").key
-					local card = Card(
-						G.play.T.x + G.play.T.w / 2 - G.CARD_W * 1.27 / 2,
-						G.play.T.y + G.play.T.h / 2 - G.CARD_H * 1.27 / 2,
-						G.CARD_W * 1.27,
-						G.CARD_H * 1.27,
-						G.P_CARDS.empty,
-						G.P_CENTERS[key],
-						{ bypass_discovery_center = true, bypass_discovery_ui = true }
-					)
-					card.cost = 0
-					card.from_tag = true
-					G.FUNCS.use_card({ config = { ref_table = card } })
-					card:start_materialize()
-					pack_opened = true
+					G.E_MANAGER:add_event(Event({
+						func = function()
+							if G.STATE == G.STATES.SHOP then
+								Cryptid.open_booster()
+							end
+							return true
+						end,
+					}))
 					return true
 				end,
 			}))
-		end
-		if context.setting_blind then
-			pack_opened = nil
 		end
 	end,
 }
