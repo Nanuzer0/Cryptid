@@ -1381,6 +1381,11 @@ function Controller:L_cursor_press(x, y)
 		then
 			G.GAME.cry_exploit_override = G.GAME.USING_EXPLOIT_HAND
 			G.FUNCS.exit_overlay_menu_code()
+			-- JokerDisplay only re-reads the hand when the selection changes; the chosen hand
+			-- changes what the selected cards score as, so refresh it now.
+			if JokerDisplay and JokerDisplay.get_scoring_hand then
+				JokerDisplay.get_scoring_hand()
+			end
 		end
 	end
 end
