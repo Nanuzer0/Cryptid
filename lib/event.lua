@@ -13,11 +13,14 @@ SMODS.Event = SMODS.GameObject:extend({
 	class_prefix = "ev",
 	-- This should be called to start an event.
 	start = function(self)
+		G.GAME.events = G.GAME.events or {}
 		G.GAME.events[self.key] = true
 	end,
 	-- This should be called to finish an event.
 	finish = function(self)
-		G.GAME.events[self.key] = nil
+		if G.GAME.events then
+			G.GAME.events[self.key] = nil
+		end
 	end,
 	-- Runs once before and after jokers, as well as a few special cases
 	calculate = function(self, context) end,

@@ -129,12 +129,13 @@ local choco_dice = {
 	immutable = true,
 	no_dbl = true,
 	loc_vars = function(self, info_queue, center)
-		if not center then --tooltip
-		else
-			SMODS.Events["ev_cry_choco" .. center.ability.extra.roll]:loc_vars(info_queue, center)
+		local roll = center and center.ability and center.ability.extra and center.ability.extra.roll or 0
+		local event = Cryptid.choco_event(roll)
+		if center and event then
+			event:loc_vars(info_queue, center)
 		end
 		return {
-			vars = { not center and "None" or center.ability.extra.roll == 0 and "None" or center.ability.extra.roll },
+			vars = { roll == 0 and "None" or roll },
 		}
 	end,
 	calculate = function(self, card, context)
@@ -146,10 +147,13 @@ local choco_dice = {
 			and not context.retrigger_joker
 			and Cryptid.is_boss_blind(G.GAME.blind)
 		then
-			--todo: check if duplicates of event are already started/finished
-			SMODS.Events["ev_cry_choco" .. card.ability.extra.roll]:finish()
-			card.ability.extra.roll = Cryptid.roll("cry_choco", 2, 10, { ignore_value = card.ability.extra.roll })
-			SMODS.Events["ev_cry_choco" .. card.ability.extra.roll]:start()
+			Cryptid.finish_choco_event(card.ability.extra.roll, card)
+			card.ability.extra.roll = Cryptid.roll_choco_event(card.ability.extra.roll)
+			local event = Cryptid.choco_event(card.ability.extra.roll)
+			if not event then
+				return
+			end
+			event:start()
 			return {
 				message = tostring(card.ability.extra.roll),
 				colour = G.C.GREEN,
@@ -158,10 +162,44 @@ local choco_dice = {
 	end,
 	remove_from_deck = function(self, card, from_debuff)
 		if not from_debuff then
-			SMODS.Events["ev_cry_choco" .. card.ability.extra.roll]:finish()
+			Cryptid.finish_choco_event(card.ability.extra.roll, card)
 		end
 	end,
 }
+
+-- The event a Chocolate Die roll stands for, or nil (roll 0 is "None", shown with choco0's list).
+function Cryptid.choco_event(roll)
+	return SMODS.Events["ev_cry_choco" .. tostring(roll or 0)]
+end
+
+-- Rolls 1-10 for a Chocolate Die, never repeating `previous` and skipping events that are
+-- disabled (event 1 needs Ghost). Returns 0 if no event can be rolled.
+function Cryptid.roll_choco_event(previous)
+	local options = {}
+	for i = 1, 10 do
+		if i ~= previous and Cryptid.choco_event(i) and Cryptid.enabled("ev_cry_choco" .. i) == true then
+			options[#options + 1] = i
+		end
+	end
+	if #options == 0 then
+		return 0
+	end
+	return pseudorandom_element(options, pseudoseed("cry_choco"))
+end
+
+-- Ends the event `card` rolled, unless another Chocolate Die is still on the same event.
+function Cryptid.finish_choco_event(roll, card)
+	local event = Cryptid.choco_event(roll)
+	if not event or roll == 0 then
+		return
+	end
+	for _, die in ipairs(SMODS.find_card("j_cry_chocolate_dice", true)) do
+		if die ~= card and die.ability.extra and die.ability.extra.roll == roll then
+			return
+		end
+	end
+	event:finish()
+end
 local choco_base_event = {
 	object_type = "Event",
 	key = "choco0",
