@@ -306,13 +306,14 @@ payload = '''
 if G.GAME.modifiers.cry_beta then t = {G.jokers, G.vouchers} end'''
 match_indent = true
 
-# Fix Boredom crash (somehow)
+# Fix Boredom crash (somehow): don't step past the last repetition when the last effect
+# still has retrigger_flag set (next(nil) would error)
 [[patches]]
 [patches.pattern]
 target = '''=[SMODS _ "src/utils.lua"]'''
-pattern = '''if eff.retrigger_flag then SMODS.calculate_effect(eff, eff.card); j = j+1; _, eff = next(reps[j]) end'''
+pattern = '''while eff.retrigger_flag do'''
 position = "at"
-payload = '''if eff.retrigger_flag and reps[j+1] ~= nil then SMODS.calculate_effect(eff, eff.card); j = j+1; _, eff = next(reps[j]) end'''
+payload = '''while eff.retrigger_flag and reps[j+1] ~= nil do'''
 match_indent = true
 
 # adds oldbp blueprint corruption
