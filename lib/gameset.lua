@@ -2161,3 +2161,20 @@ function buildAdditionsTab(mod)
 	end
 	return tab
 end
+
+-- Jimbo appears as Jolly Joker with Cryptid's colours. SMODS gives every quip without its own
+-- card args.center = "j_joker", so that counts as the default too; quips that pick another card
+-- or their own particle colours keep them. The args are copied because SMODS passes the quip's
+-- shared extra table.
+local card_character_init_ref = Card_Character.init
+function Card_Character:init(args)
+	local jolly_args = {}
+	for k, v in pairs(args or {}) do
+		jolly_args[k] = v
+	end
+	if jolly_args.center == nil or jolly_args.center == "j_joker" then
+		jolly_args.center = "j_jolly"
+	end
+	jolly_args.particle_colours = jolly_args.particle_colours or { G.C.CRY_EXOTIC, G.C.BLUE, G.C.CRY_JOLLY }
+	return card_character_init_ref(self, jolly_args)
+end
