@@ -36,6 +36,13 @@ It needs the same mods as upstream Cryptid: [Steamodded](https://github.com/Stea
   - Jimbo is a Jolly Joker with Cryptid's colours.
   - Cross-mod content loads its art and sounds from its own mod.
   - Card descriptions format big bonus values safely, and early xChips/xMult effects can't crash.
+- **Chocolate Die events**
+  - Haunted House hides the skip tags instead of letting skips do nothing.
+  - Witch's Brews' level potion shows "-1" and can't push hands below level 1.
+  - Lunar Abyss now really divides Mult by the number of played face cards.
+  - Bloodsucker destroys cards properly, so "card destroyed" effects trigger.
+  - Candy Rain no longer gives extra candies or Food Jokers, and Festive Atmosphere's Rework Tag can't be gained again by continuing a run.
+  - A missing event or two Chocolate Dice on the same event no longer cause crashes or end the event early.
 
 ## Changes and additions
 
@@ -43,6 +50,10 @@ It needs the same mods as upstream Cryptid: [Steamodded](https://github.com/Stea
   - Monopoly Money takes all your money when sold.
   - The Baneful Pack can't be skipped, and it has 2 cards.
   - The Decision no longer fastens Jokers.
+  - Ghost is back, along with the Chocolate Die's Possession event (disabling Ghost disables both).
+- **Chocolate Die events**
+  - Please Take One opens its free Booster Pack when you enter the shop instead of at the end of the round.
+  - Candy Rain's end-of-round candies no longer each bring a Food Joker.
 - **Antimatter Deck**: "Select all" and "Deselect all" buttons on the deck select page.
 - **Simple ://CRASH** setting: every crash except ACE becomes an instant quit, with the same odds as before.
 - **Gamesets**
@@ -52,7 +63,6 @@ It needs the same mods as upstream Cryptid: [Steamodded](https://github.com/Stea
 
 ## To do
 
-- Rewrite the Chocolate Die events, with Ghost kept.
 - Rewrite the Antimatter Sleeve (CardSleeves support).
 - Rewrite the JokerDisplay support.
 - Improve how the End Run button looks.
