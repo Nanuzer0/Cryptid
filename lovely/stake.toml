@@ -118,14 +118,7 @@ payload = "G.GAME.current_round.discards_used <= 0 and #context.full_hand == 1 a
 match_indent = true
 
 
-# Yellow Stake - Sixth Sense can't destroy Eternals
-[[patches]]
-[patches.pattern]
-target = "card.lua"
-pattern = "if self.ability.name == 'Sixth Sense' and #context.full_hand == 1 and context.full_hand[1]:get_id() == 6 and G.GAME.current_round.hands_played == 0 then"
-position = "at"
-payload = "if self.ability.name == 'Sixth Sense' and #context.full_hand == 1 and context.full_hand[1]:get_id() == 6 and not SMODS.is_eternal(context.full_hand[1]) and G.GAME.current_round.hands_played == 0 then"
-match_indent = true
+# Yellow Stake - Sixth Sense can't destroy Eternals: hooked in lib/modifiers.lua
 
 # Crimson Stake - Disable restocks on even antes
 [[patches]]

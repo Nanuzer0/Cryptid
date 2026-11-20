@@ -773,6 +773,21 @@ SMODS.Sticker({
 	end,
 })
 
+-- Sixth Sense doesn't destroy an Eternal 6 (playing cards can be Eternal from Yellow Stake on)
+local sixth_sense_calculate_ref = Card.calculate_joker
+function Card:calculate_joker(context)
+	if
+		context.destroying_card
+		and self.ability.name == "Sixth Sense"
+		and context.full_hand
+		and #context.full_hand == 1
+		and SMODS.is_eternal(context.full_hand[1], self)
+	then
+		return
+	end
+	return sixth_sense_calculate_ref(self, context)
+end
+
 -- shiny tag hooks
 
 local tagability = Tag.set_ability
