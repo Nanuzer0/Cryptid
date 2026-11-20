@@ -469,21 +469,25 @@ local choco4 = { --lunar abyss
 				end
 			end
 		end
-		if
-			context.post_jokers
-			and context.joker_main
-			and not context.blueprint_card
-			and not context.retrigger_joker
-		then
+		-- joker_main never reaches events (it's evaluated per Joker), so divide in the last step
+		-- of scoring, as an effect so it goes through SMODS's scoring like any other X Mult.
+		if context.post_jokers and context.final_scoring_step then
+			local played = context.full_hand or {}
 			local faces = 0
-			for i = 1, #G.play.cards do
-				if G.play.cards[i]:is_face() then
+			for _, played_card in ipairs(played) do
+				if played_card:is_face() then
 					faces = faces + 1
 				end
 			end
 			if faces > 1 then
-				mult = mult / faces
-				update_hand_text({ delay = 0 }, { mult = mult, chips = hand_chips })
+				local die = SMODS.find_card("j_cry_chocolate_dice", true)[1]
+				SMODS.calculate_effect({
+					xmult = 1 / faces,
+					xmult_message = {
+						message = localize({ type = "variable", key = "cry_divide_mult", vars = { faces } }),
+						colour = G.C.MULT,
+					},
+				}, die or played[1])
 			end
 		end
 	end,

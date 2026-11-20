@@ -5715,6 +5715,7 @@ return {
 			a_tags_minus = "-#1# Tags",
 			a_tag = "+#1# Tag",
 			a_tags = "+#1# Tags",
+			cry_divide_mult = "/#1# Mult",
 
 			cry_sticker_name = "#1# Sticker",
 			cry_sticker_desc = {
