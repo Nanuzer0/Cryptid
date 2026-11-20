@@ -465,29 +465,7 @@ if to_big(amt) ~= to_big(0) then
 """
 match_indent = true
 
-[[patches]]
-[patches.pattern]
-target = '''=[SMODS _ "src/utils.lua"]'''
-pattern = """
-return val and (val > 0 and '+'..val or ''..val) or '0'
-"""
-position = "at"
-payload = """
-return val and (to_big(val) > to_big(0) and '+'..number_format(val) or ''..number_format(val)) or '0'
-"""
-match_indent = true
-
-[[patches]]
-[patches.pattern]
-target = '''=[SMODS _ "src/utils.lua"]'''
-pattern = """
-return val and (val > 0 and '$'..val or '-$'..-val) or '0'
-"""
-position = "at"
-payload = """
-return val and (to_big(val) > to_big(0) and '$'..number_format(val) or '-$'..number_format(-val)) or '0'
-"""
-match_indent = true
+# SMODS.signed and SMODS.signed_dollars are wrapped in lib/overrides.lua
 
 [[patches]]
 [patches.pattern]

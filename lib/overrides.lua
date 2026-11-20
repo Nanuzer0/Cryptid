@@ -2572,3 +2572,28 @@ if crt_shader and type(crt_shader.send_vars) == "function" then
 		return vars
 	end
 end
+
+-- SMODS.signed / SMODS.signed_dollars build "+5" and "$5" strings for card descriptions. Compare
+-- through to_big and format through number_format so Amulet's big numbers don't crash the
+-- comparison and large values display like the rest of the UI.
+if SMODS.signed then
+	local signed_ref = SMODS.signed
+	function SMODS.signed(val)
+		if val == nil then
+			return signed_ref(val)
+		end
+		return (to_big(val) < to_big(0) and "" or "+") .. number_format(val)
+	end
+end
+if SMODS.signed_dollars then
+	local signed_dollars_ref = SMODS.signed_dollars
+	function SMODS.signed_dollars(val)
+		if val == nil then
+			return signed_dollars_ref(val)
+		end
+		if to_big(val) < to_big(0) then
+			return "-$" .. number_format(-val)
+		end
+		return "$" .. number_format(val)
+	end
+end
