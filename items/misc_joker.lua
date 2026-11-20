@@ -882,7 +882,7 @@ local pickle = {
 					type = "variable",
 					key = card.ability.extra.tags == 1 and "a_tag" or "a_tags",
 					vars = { number_format(card.ability.extra.tags) },
-				})[1],
+				}),
 				colour = G.C.FILTER,
 			})
 			return nil, true
