@@ -2106,14 +2106,20 @@ G.FUNCS.play_cards_from_highlighted = function(e)
 	G.GAME.before_play_buffer = nil
 end
 
+-- Using a card (e.g. a Planet) blanks the hand display. If it was used while selecting a hand,
+-- show the selected cards' hand (or None) again once its effects are done. use_card switches
+-- G.STATE to PLAY_TAROT before returning, so check the state from before the card was used.
 local use_cardref = G.FUNCS.use_card
-G.FUNCS.use_card = function(e, mute, nosave)
-	use_cardref(e, mute, nosave)
-	if G.STATE == G.STATES.SELECTING_HAND then
+G.FUNCS.use_card = function(e, ...)
+	local prev_state = G.STATE
+	use_cardref(e, ...)
+	if prev_state == G.STATES.SELECTING_HAND then
 		G.E_MANAGER:add_event(Event({
 			trigger = "after",
 			func = function()
-				G.hand:parse_highlighted()
+				if G.hand then
+					G.hand:parse_highlighted()
+				end
 				return true
 			end,
 		}))

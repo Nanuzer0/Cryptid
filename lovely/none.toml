@@ -23,28 +23,7 @@ local discard_button = {n=G.UIT.C, config={id = 'discard_button',align = "tm", p
 '''
 match_indent = true
 
-[[patches]]
-[patches.pattern]
-target = "card.lua"
-pattern = '''
-level_up_hand(used_tarot, self.ability.consumeable.hand_type)
-update_hand_text({sound = 'button', volume = 0.7, pitch = 1.1, delay = 0}, {mult = 0, chips = 0, handname = '', level = ''})
-'''
-position = "at"
-payload = '''
-level_up_hand(used_tarot, self.ability.consumeable.hand_type)
-update_hand_text({sound = 'button', volume = 0.7, pitch = 1.1, delay = 0}, {mult = 0, chips = 0, handname = '', level = ''})
-if G.GAME.current_round.current_hand.handname ~= "" then
-    G.E_MANAGER:add_event(Event({
-        trigger = 'after',
-        func = function()
-            G.hand:parse_highlighted()
-            return true
-        end
-    }))
-end
-'''
-match_indent = true
+# Showing the selected hand again after a Planet: G.FUNCS.use_card hook in lib/overrides.lua
 
 [[patches]]
 [patches.pattern]
