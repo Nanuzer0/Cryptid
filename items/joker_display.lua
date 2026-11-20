@@ -4,7 +4,7 @@
 -- JokerDisplay.Definitions table exists by now; without it nothing here runs.
 if JokerDisplay and JokerDisplay.Definitions then
 	local jd = assert(SMODS.load_file("jokerdisplay/shared.lua"))()
-	for _, file in ipairs({}) do
+	for _, file in ipairs({ "misc_joker" }) do
 		assert(SMODS.load_file("jokerdisplay/" .. file .. ".lua"))()(jd)
 	end
 end
