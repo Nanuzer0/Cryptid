@@ -792,6 +792,14 @@ local oversat = {
 	get_weight = function(self)
 		return G.GAME.edition_rate * self.weight
 	end,
+	-- Same as SMODS's default edition drawing, plus the Negative shine to make it stand out
+	draw = function(self, card, layer)
+		card.children.center:draw_shader(self.shader, nil, card.ARGS.send_to_shader)
+		if card.children.front and not card:should_hide_front() then
+			card.children.front:draw_shader(self.shader, nil, card.ARGS.send_to_shader)
+		end
+		card.children.center:draw_shader("negative_shine", nil, card.ARGS.send_to_shader)
+	end,
 	-- Note: Duping playing cards resets the base chips for some reason
 	on_apply = function(card)
 		if not card.ability.cry_oversat then

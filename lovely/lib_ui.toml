@@ -3,14 +3,7 @@ version = "1.0.0"
 dump_lua = true
 priority = -1
 
-# Shine on Oversaturated to make it more noticable
-[[patches]]
-[patches.pattern]
-target = '''=[SMODS _ "src/card_draw.lua"]'''
-pattern = "if (self.edition and self.edition.negative) or (self.ability.name == 'Antimatter' and (self.config.center.discovered or self.bypass_discovery_center)) then"
-position = 'at'
-match_indent = true
-payload = "if (self.edition and (self.edition.negative or self.edition.cry_oversat)) or (self.ability.name == 'Antimatter' and (self.config.center.discovered or self.bypass_discovery_center)) then"
+# Shine on Oversaturated: the edition's own draw function (items/misc.lua)
 
 # Make description UI always appear if card is highlighted
 [[patches]]
