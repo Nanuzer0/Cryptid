@@ -805,6 +805,39 @@ function Tag:set_ability()
 	end
 end
 
+-- Shiny tags use the shiny atlas. SMODS builds the tag sprite itself (SMODS.create_sprite),
+-- so the atlas is swapped on the finished sprite instead of patching how it's created.
+local function shiny_tag_atlas(tag_center)
+	if tag_center.shiny_atlas then
+		return G.ASSET_ATLAS[tag_center.shiny_atlas]
+	elseif not tag_center.atlas or tag_center.atlas == "tags" then
+		return G.ASSET_ATLAS["cry_shinyv"]
+	elseif tag_center.atlas == "cry_tag_cry" then
+		return G.ASSET_ATLAS["cry_shinyc"]
+	end
+end
+local tag_generate_ui_ref = Tag.generate_UI
+function Tag:generate_UI(_size)
+	local tag_sprite_tab, tag_sprite = tag_generate_ui_ref(self, _size)
+	local tag_center = G.P_TAGS[self.key]
+	if
+		self.ability
+		and self.ability.shiny
+		and not self.hide_ability
+		and tag_center
+		and tag_sprite
+		and tag_sprite.set_sprite_pos
+		and not (AnimatedSprite and tag_sprite:is(AnimatedSprite))
+	then
+		local atlas = shiny_tag_atlas(tag_center)
+		if atlas then
+			tag_sprite.atlas = atlas
+			tag_sprite:set_sprite_pos(tag_sprite.sprite_pos)
+		end
+	end
+	return tag_sprite_tab, tag_sprite
+end
+
 local ycollecref = G.FUNCS.your_collection
 G.FUNCS.your_collection = function(e)
 	ycollecref(e)
