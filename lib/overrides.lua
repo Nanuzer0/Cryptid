@@ -2597,3 +2597,19 @@ if SMODS.signed_dollars then
 		return "$" .. number_format(val)
 	end
 end
+
+-- x_chips / x_mult effects multiply the hand_chips / mult globals, which are nil until the first
+-- hand of the session is scored. Skip chip and mult effects until then instead of crashing, like
+-- the old guards on SMODS.calculate_individual_effect did.
+for param_key, global_name in pairs({ chips = "hand_chips", mult = "mult" }) do
+	local param = SMODS.Scoring_Parameters and SMODS.Scoring_Parameters[param_key]
+	if param and type(param.calc_effect) == "function" then
+		local calc_effect_ref = param.calc_effect
+		param.calc_effect = function(self, ...)
+			if _G[global_name] == nil then
+				return
+			end
+			return calc_effect_ref(self, ...)
+		end
+	end
+end
