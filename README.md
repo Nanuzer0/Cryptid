@@ -39,14 +39,16 @@ It needs the same mods as upstream Cryptid: [Steamodded](https://github.com/Stea
 
 ## Changes and additions
 
-- **Monopoly Money** takes all your money when sold.
-- **Baneful Pack**: can't be skipped, and it has 2 cards.
-- **The Decision** no longer fastens Jokers.
+- **Cursed Jokers and The Decision**
+  - Monopoly Money takes all your money when sold.
+  - The Baneful Pack can't be skipped, and it has 2 cards.
+  - The Decision no longer fastens Jokers.
 - **Antimatter Deck**: "Select all" and "Deselect all" buttons on the deck select page.
 - **Simple ://CRASH** setting: every crash except ACE becomes an instant quit, with the same odds as before.
-- **End Run** button on the Continue tab, so you can delete a saved run and change gameset settings.
-- **Gameset picker**: a green tick marks the current option.
-- **Additions page**: each item shows the gameset it's in.
+- **Gamesets**
+  - An End Run button on the Continue tab lets you delete a saved run and change gameset settings.
+  - A green tick marks the current option in the gameset picker.
+  - Each item on the Additions page shows the gameset it's in.
 
 ## To do
 
