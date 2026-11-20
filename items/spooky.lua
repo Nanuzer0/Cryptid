@@ -598,6 +598,7 @@ local choco7 = {
 				end
 				if events.ev_cry_choco8 and not self.cry_candy_rain_no_food then
 					-- The Food pool includes candies; a candy from this doesn't give another Food Joker.
+					-- Candy Rain's own end-of-round candies are marked the same way.
 					local args = { set = "Food", area = G.jokers }
 					local food = SMODS.create_card(args)
 					food.cry_candy_rain_no_food = true
@@ -615,6 +616,8 @@ local choco8 = {
 		if context.post_jokers and context.cash_out then
 			for i = 1, G.GAME.current_round.hands_left do
 				local card = create_card("Joker", G.jokers, nil, "cry_candy", nil, nil, nil, "cry_choco8")
+				-- Balance: the candies from this don't also give a Food Joker each.
+				card.cry_candy_rain_no_food = true
 				card:add_to_deck()
 				G.jokers:emplace(card)
 			end

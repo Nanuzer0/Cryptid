@@ -4897,7 +4897,7 @@ return {
 				text = {
 					"When {C:attention}Blind{} defeated, obtain 1 {C:cry_candy}Candy{}",
 					"per hand remaining; Obtain a {C:attention}Food Joker{}",
-					"when a {C:cry_candy}Candy{} is generated",
+					"when any other {C:cry_candy}Candy{} is generated",
 					"{C:inactive,s:0.7}Candies rain from the sky! Quick,",
 					"{C:inactive,s:0.7,E:1}grab as much as you can!",
 				},
