@@ -135,6 +135,51 @@ function jd.scored_hand_name(name)
 	return name
 end
 
+-- Panopticon and Labyrinth work by changing the round's counters only while a hand or discard
+-- is calculated: Panopticon sets hands_left to 0 from context.before to context.after (every
+-- hand is the last one), Labyrinth sets hands_played and discards_used to 0 (every hand and
+-- discard is the first one; see lib/overrides.lua). Displays run outside of that, so
+-- jd.as_played(f) wraps a definition function to run with the counters the selected hand or
+-- discard will see, and puts the real ones back afterwards (also if f errors).
+-- Before a hand is played, the last hand shows as hands_left == 1 (playing it takes one off),
+-- which is what vanilla displays like Acrobat and Dusk check for.
+local function restore_counters(round, saved, ok, ...)
+	for key, value in pairs(saved) do
+		round[key] = value
+	end
+	if not ok then
+		error((...), 0)
+	end
+	return ...
+end
+
+function jd.as_played(f)
+	return function(...)
+		local round = G.GAME and G.GAME.current_round
+		if not round then
+			return f(...)
+		end
+		local saved = {}
+		if next(SMODS.find_card("j_cry_panopticon")) then
+			local last = (G.play and next(G.play.cards)) and 0 or 1
+			if round.hands_left > last then
+				saved.hands_left = round.hands_left
+				round.hands_left = last
+			end
+		end
+		if next(SMODS.find_card("j_cry_maze")) then
+			saved.hands_played = round.hands_played
+			saved.discards_used = round.discards_used
+			round.hands_played = 0
+			round.discards_used = 0
+		end
+		if not next(saved) then
+			return f(...)
+		end
+		return restore_counters(round, saved, pcall(f, ...))
+	end
+end
+
 -- The value a bonus of this kind has when it doesn't apply.
 function jd.neutral(kind)
 	return (kind == "mult" or kind == "chips") and 0 or 1

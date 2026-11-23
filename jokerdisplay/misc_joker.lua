@@ -236,13 +236,13 @@ return function(jd)
 			{ ref_table = "card.joker_display_values", ref_value = "active_text" },
 			{ text = ")" },
 		},
-		calc_function = function(card)
+		calc_function = jd.as_played(function(card)
 			-- The hand being scored has already been taken off hands_left.
 			local hands_left = G.GAME.current_round.hands_left - (next(G.play.cards) and 0 or 1)
-			card.joker_display_values.is_active = hands_left <= 0 or next(SMODS.find_card("j_cry_panopticon")) ~= nil
+			card.joker_display_values.is_active = hands_left <= 0
 			card.joker_display_values.active_text =
 				localize("jdis_" .. (card.joker_display_values.is_active and "active" or "inactive"))
-		end,
+		end),
 		style_function = jd.style_active,
 	}
 
