@@ -323,7 +323,9 @@ local crash = {
 			f = crashes[1]
 		end
 
-		if crashes and f ~= crashes[#crashes] then
+		-- Not in a Multiplayer lobby: lobby runs are never written to the save file
+		-- (Multiplayer brings the run back through its own crash rejoin)
+		if crashes and f ~= crashes[#crashes] and not Cryptid.in_mp_lobby() then
 			-- Force a synchronous save of the full run state before crash
 			Cryptid.force_save_before_crash(copier or card)
 		end
