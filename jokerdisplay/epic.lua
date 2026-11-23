@@ -94,19 +94,9 @@ return function(jd)
 	}
 
 	-- Error: like Invisible Joker, but the number of rounds is hidden.
-	defs.j_cry_error = {
-		reminder_text = {
-			{ text = "(" },
-			{ ref_table = "card.joker_display_values", ref_value = "active_text" },
-			{ text = ")" },
-		},
-		calc_function = function(card)
-			card.joker_display_values.is_active = card.ability.extra.active and true or false
-			card.joker_display_values.active_text =
-				localize("jdis_" .. (card.joker_display_values.is_active and "active" or "inactive"))
-		end,
-		style_function = jd.style_active,
-	}
+	defs.j_cry_error = jd.status(function(card)
+		return card.ability.extra.active
+	end)
 
 	-- Circus: X Mult for each Joker of a rarity above Common, shown on those Jokers (like Baseball
 	-- Card).

@@ -89,6 +89,52 @@ function jd.countdown_text(remaining)
 	return localize({ type = "variable", key = "loyalty_inactive", vars = { remaining } })
 end
 
+-- "(Active!)" or "(Inactive)", coloured like DNA's. active(card) says which.
+function jd.status(active)
+	return {
+		reminder_text = {
+			{ text = "(" },
+			{ ref_table = "card.joker_display_values", ref_value = "active_text" },
+			{ text = ")" },
+		},
+		calc_function = function(card)
+			local is_active = active(card) and true or false
+			card.joker_display_values.is_active = is_active
+			card.joker_display_values.active_text = localize(is_active and "jdis_active" or "jdis_inactive")
+		end,
+		style_function = jd.style_active,
+	}
+end
+
+-- "(N remaining)", the way Loyalty Card counts down. remaining(card) gives N.
+function jd.remaining(remaining)
+	return {
+		reminder_text = {
+			{ text = "(" },
+			{ ref_table = "card.joker_display_values", ref_value = "remaining" },
+			{ text = ")" },
+		},
+		calc_function = function(card)
+			card.joker_display_values.remaining =
+				localize({ type = "variable", key = "loyalty_inactive", vars = { remaining(card) } })
+		end,
+	}
+end
+
+-- The reminder for a poker hand, like The Duo's: "(Pair)" in orange. Set its text with
+-- card.joker_display_values.localized_text = jd.hand_name(hand key).
+function jd.hand_reminder()
+	return {
+		{ text = "(" },
+		{ ref_table = "card.joker_display_values", ref_value = "localized_text", colour = G.C.ORANGE },
+		{ text = ")" },
+	}
+end
+
+function jd.hand_name(hand)
+	return hand and localize(hand, "poker_hands") or "-"
+end
+
 -- Progress towards something, shown like Invisible Joker: "(done/needed)", then "(Active!)".
 -- get(card) returns done, needed and, optionally, whether it's active (default: done >= needed).
 function jd.progress(get)

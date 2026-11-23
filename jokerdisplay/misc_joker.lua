@@ -346,14 +346,9 @@ return function(jd)
 
 	-- Space Globe: its X Chips, and the hand that scales it (like The Duo's reminder).
 	local spaceglobe = jd.stat("xchips", "x_chips")
-	spaceglobe.reminder_text = {
-		{ text = "(" },
-		{ ref_table = "card.joker_display_values", ref_value = "localized_text", colour = G.C.ORANGE },
-		{ text = ")" },
-	}
+	spaceglobe.reminder_text = jd.hand_reminder()
 	spaceglobe.calc_function = function(card)
-		local hand = card.ability.extra.type
-		card.joker_display_values.localized_text = hand and localize(hand, "poker_hands") or "-"
+		card.joker_display_values.localized_text = jd.hand_name(card.ability.extra.type)
 	end
 	defs.j_cry_spaceglobe = spaceglobe
 
