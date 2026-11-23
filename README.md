@@ -54,6 +54,9 @@ It needs the same mods as upstream Cryptid: [Steamodded](https://github.com/Stea
 - **Chocolate Die events**
   - Please Take One opens its free Booster Pack when you enter the shop instead of at the end of the round.
   - Candy Rain's end-of-round candies no longer each bring a Food Joker.
+- **JokerDisplay** support rewritten: every Cryptid Joker with something to show while playing has a simple display, styled like base JokerDisplay's vanilla Jokers.
+  - Acrobat, Dusk, DNA, Sixth Sense, Trading Card and Burnt Joker take Panopticon and Labyrinth into account.
+  - Astral and Mosaic Jokers show their edition's bonus, and ^Mult boxes use Amulet's colour.
 - **Antimatter Deck**: "Select all" and "Deselect all" buttons on the deck select page.
 - **Simple ://CRASH** setting: every crash except ACE becomes an instant quit, with the same odds as before.
 - **Gamesets**
@@ -64,6 +67,6 @@ It needs the same mods as upstream Cryptid: [Steamodded](https://github.com/Stea
 ## To do
 
 - Rewrite the Antimatter Sleeve (CardSleeves support).
-- Rewrite the JokerDisplay support.
+- JokerDisplay: show how Caeruleum promotes its neighbours' Chips.
 - Improve how the End Run button looks.
 - Translations for the new settings and buttons, which are English only for now.
