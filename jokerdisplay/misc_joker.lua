@@ -82,6 +82,18 @@ return function(jd)
 		jimball = { "xmult", "x_mult" },
 		krustytheclown = { "xmult", "x_mult" },
 		antennastoheaven = { "xchips", "x_chips" },
+		unjust_dagger = { "xmult", "x_mult" },
+		monkey_dagger = { "chips", "chips" },
+		pirate_dagger = { "xchips", "x_chips" },
+		mondrian = { "xmult", "x_mult" },
+		wheelhope = { "xmult", "x_mult" },
+		kittyprinter = { "xmult", "Xmult" },
+		clicked_cookie = { "chips", "chips" },
+		zooble = { "mult", "mult" },
+		pizza_slice = { "xmult", "xmult" },
+		fading_joker = { "xmult", "xmult" },
+		poor_joker = { "mult", "mult" },
+		keychange = { "xmult", "xm" },
 	}
 	for key, stat in pairs(stats) do
 		defs["j_cry_" .. key] = jd.stat(stat[1], stat[2])
@@ -237,9 +249,7 @@ return function(jd)
 			{ text = ")" },
 		},
 		calc_function = jd.as_played(function(card)
-			-- The hand being scored has already been taken off hands_left.
-			local hands_left = G.GAME.current_round.hands_left - (next(G.play.cards) and 0 or 1)
-			card.joker_display_values.is_active = hands_left <= 0
+			card.joker_display_values.is_active = jd.is_last_hand()
 			card.joker_display_values.active_text =
 				localize("jdis_" .. (card.joker_display_values.is_active and "active" or "inactive"))
 		end),
@@ -325,4 +335,319 @@ return function(jd)
 		end
 		return values.money
 	end)
+	-- These work out their money in calc_dollar_bonus, which only reads the game state.
+	local function dollar_bonus(card)
+		return card.config.center:calc_dollar_bonus(card)
+	end
+	defs.j_cry_morse = jd.round_money(dollar_bonus)
+	defs.j_cry_kidnap = jd.round_money(dollar_bonus)
+	defs.j_cry_tax_fraud = jd.round_money(dollar_bonus)
+
+	-- Sapling: like Invisible Joker. Counts scored enhanced cards until it can be sold for a Joker.
+	defs.j_cry_sapling = jd.progress(function(card)
+		return card.ability.immutable.score, card.ability.extra.req
+	end)
+
+	-- Space Globe: its X Chips, and the hand that scales it (like The Duo's reminder).
+	local spaceglobe = jd.stat("xchips", "x_chips")
+	spaceglobe.reminder_text = {
+		{ text = "(" },
+		{ ref_table = "card.joker_display_values", ref_value = "localized_text", colour = G.C.ORANGE },
+		{ text = ")" },
+	}
+	spaceglobe.calc_function = function(card)
+		local hand = card.ability.extra.type
+		card.joker_display_values.localized_text = hand and localize(hand, "poker_hands") or "-"
+	end
+	defs.j_cry_spaceglobe = spaceglobe
+
+	-- Meteor Shower, Exoplanet, Stardust and Universe: a bonus for each scoring and held card with
+	-- their edition, shown like Shoot the Moon, plus the same bonus on each Joker with it (shown on
+	-- those Jokers, like Baseball Card).
+	local function edition_bonus(kind, field, edition)
+		local function has_edition(other)
+			return other.edition and other.edition[edition]
+		end
+		local text, text_config = jd.bonus_text(kind, "bonus")
+		return {
+			text = text,
+			text_config = text_config,
+			reminder_text = {
+				{ text = "(" },
+				{ ref_table = "card.joker_display_values", ref_value = "localized_text", colour = G.C.ORANGE },
+				{ text = ")" },
+			},
+			calc_function = function(card)
+				local count = jd.count_scoring(has_edition) + jd.count_held(has_edition)
+				local value = card.ability.extra[field]
+				card.joker_display_values.bonus = jd.neutral(kind) == 0 and value * count or value ^ count
+				card.joker_display_values.localized_text =
+					localize({ type = "name_text", set = "Edition", key = "e_" .. edition })
+			end,
+			mod_function = function(other, joker)
+				if other == joker or other.ability.set ~= "Joker" or not has_edition(other) then
+					return {}
+				end
+				local value = joker.ability.extra[field]
+				local triggers = JokerDisplay.calculate_joker_triggers(joker)
+				if kind == "mult" or kind == "chips" then
+					return { [kind] = value * triggers }
+				end
+				return { [kind == "xmult" and "x_mult" or "e_mult"] = value ^ triggers }
+			end,
+		}
+	end
+	defs.j_cry_meteor = edition_bonus("chips", "chips", "foil")
+	defs.j_cry_exoplanet = edition_bonus("mult", "mult", "holo")
+	defs.j_cry_stardust = edition_bonus("xmult", "xmult", "polychrome")
+	defs.j_cry_universe = edition_bonus("emult", "emult", "cry_astral")
+
+	-- RNJoker: its ability is random (rerolled every Ante). The display shows what that ability
+	-- adds to the score right now, its end-of-round money, or its retriggers; other abilities
+	-- (creating cards, hand size) show nothing. The layout can't change per card, so the bonus
+	-- is plain text ("+N" or "XN") coloured by kind, without the X Mult box.
+	local rnj_kinds = {
+		plus_mult = { prefix = "+", colour = G.C.MULT, adds = true },
+		plus_chips = { prefix = "+", colour = G.C.CHIPS, adds = true },
+		x_mult = { prefix = "X", colour = G.C.MULT },
+		x_chips = { prefix = "X", colour = G.C.CHIPS },
+		money = { prefix = "+$", colour = G.C.GOLD },
+	}
+	local function rnj_ability(card)
+		local abilities = card.ability.abilities
+		return abilities and abilities[1] or {}, type(card.ability.extra) == "table" and card.ability.extra or {}
+	end
+	-- The suit/rank/face condition on cards; "odds" (random) and no condition always pass.
+	local function rnj_card_matches(ability, playing_card)
+		if ability.cond == "suit" then
+			return playing_card:is_suit(ability.suit)
+		elseif ability.cond == "rank" then
+			return playing_card:get_id() == ability.rank
+		elseif ability.cond == "face" then
+			return playing_card:is_face()
+		end
+		return true
+	end
+	-- Whether a joker_main ability's condition holds for the selected hand.
+	local function rnj_hand_matches(ability, state)
+		if ability.cond == "first" then
+			return G.GAME.current_round.hands_played == 0
+		elseif ability.cond == "last" then
+			return jd.is_last_hand()
+		elseif ability.cond == "poker_hand" then
+			local _, poker_hands = JokerDisplay.evaluate_hand()
+			return poker_hands[ability.poker_hand] and next(poker_hands[ability.poker_hand]) and true or false
+		elseif ability.cond == "or_more" then
+			return #(JokerDisplay.current_hand or {}) >= (state.cond_value or 0)
+		elseif ability.cond == "or_less" then
+			return #(JokerDisplay.current_hand or {}) <= (state.cond_value or 0)
+		end
+		return true
+	end
+	defs.j_cry_rnjoker = jd.add_odds({
+		text = {
+			{ ref_table = "card.joker_display_values", ref_value = "prefix" },
+			{ ref_table = "card.joker_display_values", ref_value = "bonus" },
+		},
+		reminder_text = {
+			{ ref_table = "card.joker_display_values", ref_value = "reminder" },
+		},
+		calc_function = jd.as_played(function(card)
+			local ability, state = rnj_ability(card)
+			local kind = rnj_kinds[ability.stat]
+			local values = card.joker_display_values
+			values.prefix, values.bonus, values.reminder, values.odds = "", "", "", ""
+			values.colour = kind and kind.colour
+			local repeats = ability.context == "repetition_play" or ability.context == "repetition_hand"
+			if ability.cond == "odds" and (kind or repeats) then
+				values.odds = jd.odds_text(SMODS.get_probability_vars(card, 1, state.cond_value or 0, "RNJoker"))
+			end
+			if not kind then
+				return
+			end
+			local value = state.value or 0
+			values.prefix = kind.prefix
+			if ability.stat == "money" then
+				values.bonus = value > 0 and value or 0
+				values.reminder = "(" .. localize("k_round") .. ")"
+				return
+			end
+			-- Every scoring ability also gives its value in joker_main; there the condition
+			-- only applies to abilities that belong to joker_main.
+			local count = (ability.context ~= "joker_main" or rnj_hand_matches(ability, state)) and 1 or 0
+			if not ability.scale_value then
+				local function matches(playing_card)
+					return rnj_card_matches(ability, playing_card)
+				end
+				if ability.context == "individual_play" then
+					count = count + jd.count_scoring(matches)
+				elseif ability.context == "individual_hand_score" then
+					count = count + jd.count_held(matches)
+				end
+			end
+			count = count * JokerDisplay.calculate_joker_triggers(card)
+			values.bonus = kind.adds and value * count or value ^ count
+		end),
+		style_function = function(card, text)
+			local colour = card.joker_display_values.colour
+			if colour and text and text.children then
+				for _, child in ipairs(text.children) do
+					child.config.colour = colour
+				end
+			end
+		end,
+		-- other_joker abilities: the bonus on each matching Joker, like Baseball Card.
+		mod_function = function(other, rnj)
+			local ability, state = rnj_ability(rnj)
+			local kind = rnj_kinds[ability.stat]
+			if not kind or ability.context ~= "other_joker" or other.ability.set ~= "Joker" then
+				return {}
+			end
+			local rarity = other.config.center.rarity
+			if (ability.cond == "uncommon" and rarity ~= 2) or (ability.cond == "rare" and rarity ~= 3) then
+				return {}
+			end
+			local value = state.value or 0
+			local triggers = JokerDisplay.calculate_joker_triggers(rnj)
+			local keys = { plus_mult = "mult", plus_chips = "chips", x_mult = "x_mult", x_chips = "x_chips" }
+			return { [keys[ability.stat]] = kind.adds and value * triggers or value ^ triggers }
+		end,
+		retrigger_function = function(playing_card, scoring_hand, held_in_hand, rnj)
+			local ability = rnj_ability(rnj)
+			if ability.context == "repetition_play" then
+				if held_in_hand or not JokerDisplay.in_scoring(playing_card, scoring_hand) then
+					return 0
+				end
+			elseif ability.context ~= "repetition_hand" or not held_in_hand then
+				return 0
+			end
+			return rnj_card_matches(ability, playing_card) and JokerDisplay.calculate_joker_triggers(rnj) or 0
+		end,
+	})
+
+	-- Coin: like Misprint, the range of money it can give when a Joker is sold.
+	defs.j_cry_coin = {
+		text = {
+			{ text = "+$" },
+			{ ref_table = "card.joker_display_values", ref_value = "range" },
+		},
+		text_config = { colour = G.C.GOLD },
+		calc_function = function(card)
+			local money = card.ability.extra.money
+			local most = Card.get_gameset(card) ~= "modest" and card.ability.immutable.money_mod or 4
+			card.joker_display_values.range = number_format(money) .. "-" .. number_format(to_big(money) * most)
+		end,
+	}
+
+	-- Old Blueprint: like Blueprint, it copies the Joker to its right.
+	defs.j_cry_oldblueprint = {
+		reminder_text = {
+			{ text = "(" },
+			{ ref_table = "card.joker_display_values", ref_value = "blueprint_compat", colour = G.C.RED },
+			{ text = ")" },
+		},
+		calc_function = function(card)
+			local copied_joker, copied_debuff = JokerDisplay.calculate_blueprint_copy(card)
+			card.joker_display_values.blueprint_compat = localize("k_incompatible")
+			JokerDisplay.copy_display(card, copied_joker, copied_debuff)
+		end,
+		get_blueprint_joker = function(card)
+			for i = 1, #G.jokers.cards do
+				if G.jokers.cards[i] == card then
+					return G.jokers.cards[i + 1]
+				end
+			end
+			return nil
+		end,
+	}
+
+	-- Night: like Acrobat. ^Mult on the last hand of the round (every hand with Panopticon).
+	defs.j_cry_night = {
+		text = jd.bonus_text("emult", "e_mult"),
+		calc_function = jd.as_played(function(card)
+			card.joker_display_values.e_mult = jd.is_last_hand() and card.ability.extra.mult or 1
+		end),
+	}
+
+	-- Bus Driver: like Gros Michel. +Mult, or -Mult if the chance fails.
+	defs.j_cry_busdriver = jd.add_odds({
+		text = {
+			{ text = "+" },
+			{ ref_table = "card.ability.extra", ref_value = "mult", retrigger_type = "mult" },
+		},
+		text_config = { colour = G.C.MULT },
+		calc_function = function(card)
+			-- The same numbers as its description.
+			local prob = cry_prob(card.ability.cry_prob, card.ability.extra.odds, card.ability.cry_rigged)
+			local odds = math.max(1, card.ability.extra.odds)
+			card.joker_display_values.odds = jd.odds_text(odds - 1 / prob, odds)
+		end,
+	})
+
+	-- Old Membership Card: X Mult for each member of the Cryptid Discord.
+	defs.j_cry_membershipcard = {
+		text = jd.bonus_text("xmult", "x_mult"),
+		calc_function = function(card)
+			-- The member count is read from a web response, so it can be a string.
+			local x_mult = to_big(card.ability.extra.Xmult_mod) * (tonumber(Cryptid.member_count) or 0)
+			card.joker_display_values.x_mult = x_mult > to_big(1) and x_mult or 1
+		end,
+	}
+
+	-- Old Invisible Joker: duplicates a Joker on the 4th Joker sold. Its own messages count
+	-- "N/4", so it's active once 3 have been sold.
+	defs.j_cry_oldinvisible = jd.progress(function(card)
+		return card.ability.extra, 4, card.ability.extra >= 3
+	end)
+
+	-- Card retriggers, like Sock and Buskin.
+	local function retrigger_scoring(predicate)
+		return {
+			retrigger_function = function(playing_card, scoring_hand, held_in_hand, joker_card)
+				if held_in_hand or not JokerDisplay.in_scoring(playing_card, scoring_hand) or not predicate(playing_card) then
+					return 0
+				end
+				return capped_retriggers(joker_card) * JokerDisplay.calculate_joker_triggers(joker_card)
+			end,
+		}
+	end
+	defs.j_cry_exposed = retrigger_scoring(function(playing_card)
+		return not playing_card:is_face()
+	end)
+	defs.j_cry_mask = retrigger_scoring(function(playing_card)
+		return playing_card:is_face()
+	end)
+	defs.j_cry_sock_and_sock = retrigger_scoring(function(playing_card)
+		return SMODS.has_enhancement(playing_card, "m_cry_abstract")
+	end)
+
+	-- Digital Hallucinations: like Hallucination, its chance.
+	defs.j_cry_digitalhallucinations = jd.add_odds({
+		calc_function = function(card)
+			card.joker_display_values.odds =
+				jd.odds_text(SMODS.get_probability_vars(card, 1, card.ability.odds, "Digital Hallucinations"))
+		end,
+	})
+
+	-- Broken Home: like Gros Michel. X Mult, and its chance to be destroyed.
+	local brokenhome = jd.add_odds(jd.stat("xmult", "Xmult"))
+	brokenhome.calc_function = function(card)
+		card.joker_display_values.odds =
+			jd.odds_text(SMODS.get_probability_vars(card, 1, card.ability.extra.odds, "Broken Home"))
+	end
+	defs.j_cry_brokenhome = brokenhome
+
+	-- Pizza: like Invisible Joker. Rounds until selling it gives the slices.
+	defs.j_cry_pizza = jd.progress(function(card)
+		local values = card.ability.extra
+		return values.rounds_needed - values.rounds_left, values.rounds_needed
+	end)
+
+	-- Thalia: X Mult from the rarities among your Jokers.
+	defs.j_cry_thalia = {
+		text = jd.bonus_text("xmult", "x_mult"),
+		calc_function = function(card)
+			card.joker_display_values.x_mult = card.config.center:calc_xmult(card)
+		end,
+	}
 end

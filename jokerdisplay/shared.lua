@@ -50,6 +50,20 @@ function jd.count_scoring(predicate)
 	return count
 end
 
+-- How many times cards held in hand matching predicate(card) will trigger, counting retriggers,
+-- like Baron and Shoot the Moon: the cards left in hand once the selected ones are played.
+-- Debuffed and face-down cards don't count.
+function jd.count_held(predicate)
+	local playing = next(G.play.cards)
+	local count = 0
+	for _, held in ipairs(G.hand and G.hand.cards or {}) do
+		if (playing or not held.highlighted) and held.facing ~= "back" and not held.debuff and predicate(held) then
+			count = count + JokerDisplay.calculate_card_triggers(held, nil, true)
+		end
+	end
+	return count
+end
+
 -- Whether the selected cards (scoring or not) include every rank id in ids.
 function jd.hand_has_ranks(ids)
 	local found = {}
@@ -73,6 +87,28 @@ function jd.countdown_text(remaining)
 		return localize("jdis_active")
 	end
 	return localize({ type = "variable", key = "loyalty_inactive", vars = { remaining } })
+end
+
+-- Progress towards something, shown like Invisible Joker: "(done/needed)", then "(Active!)".
+-- get(card) returns done, needed and, optionally, whether it's active (default: done >= needed).
+function jd.progress(get)
+	return {
+		reminder_text = {
+			{ text = "(" },
+			{ ref_table = "card.joker_display_values", ref_value = "progress" },
+			{ text = ")" },
+		},
+		calc_function = function(card)
+			local done, needed, active = get(card)
+			if active == nil then
+				active = to_big(done) >= to_big(needed)
+			end
+			card.joker_display_values.is_active = active
+			card.joker_display_values.progress = active and localize("jdis_active")
+				or (number_format(done) .. "/" .. number_format(needed))
+		end,
+		style_function = jd.style_active,
+	}
 end
 
 -- Colours a reminder's value green while active and grey otherwise, like DNA and Loyalty Card.
@@ -178,6 +214,26 @@ function jd.as_played(f)
 		end
 		return restore_counters(round, saved, pcall(f, ...))
 	end
+end
+
+-- Whether the selected hand (or the hand being scored) is the last one of the round. The hand
+-- being scored has already been taken off hands_left. Call it inside jd.as_played so that
+-- Panopticon counts.
+function jd.is_last_hand()
+	return G.GAME.current_round.hands_left - (next(G.play.cards) and 0 or 1) <= 0
+end
+
+-- A chance, shown the way Gros Michel and Bloodstone show theirs: "(N in M)" in a small green
+-- row above the display. jd.add_odds(def) adds that row to def, showing
+-- card.joker_display_values.odds; set it with jd.odds_text(numerator, denominator).
+function jd.odds_text(numerator, denominator)
+	return "(" .. localize({ type = "variable", key = "jdis_odds", vars = { numerator, denominator } }) .. ")"
+end
+
+function jd.add_odds(def)
+	def.extra = { { { ref_table = "card.joker_display_values", ref_value = "odds" } } }
+	def.extra_config = { colour = G.C.GREEN, scale = 0.3 }
+	return def
 end
 
 -- The value a bonus of this kind has when it doesn't apply.
