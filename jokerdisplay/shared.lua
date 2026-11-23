@@ -159,6 +159,12 @@ function jd.round_money(dollars)
 	}
 end
 
+-- For jd.round_money: what the Joker's calc_dollar_bonus pays. Only for Jokers whose
+-- calc_dollar_bonus just reads the game state (no side effects).
+function jd.dollar_bonus(card)
+	return card.config.center:calc_dollar_bonus(card)
+end
+
 -- The hand name a played hand scores as, from the name JokerDisplay.evaluate_hand gives.
 -- Like evaluate_play_intro, a name that isn't a known poker hand ("NULL": no cards, or only
 -- cards without a rank) scores as None, even before None is visible and detected as a hand.
@@ -234,6 +240,16 @@ function jd.add_odds(def)
 	def.extra = { { { ref_table = "card.joker_display_values", ref_value = "odds" } } }
 	def.extra_config = { colour = G.C.GREEN, scale = 0.3 }
 	return def
+end
+
+-- A Joker whose only number is a chance, shown like Hallucination.
+-- odds(card) returns the numerator and denominator (from SMODS.get_probability_vars).
+function jd.chance(odds)
+	return jd.add_odds({
+		calc_function = function(card)
+			card.joker_display_values.odds = jd.odds_text(odds(card))
+		end,
+	})
 end
 
 -- The value a bonus of this kind has when it doesn't apply.

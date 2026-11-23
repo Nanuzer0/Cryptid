@@ -335,13 +335,9 @@ return function(jd)
 		end
 		return values.money
 	end)
-	-- These work out their money in calc_dollar_bonus, which only reads the game state.
-	local function dollar_bonus(card)
-		return card.config.center:calc_dollar_bonus(card)
-	end
-	defs.j_cry_morse = jd.round_money(dollar_bonus)
-	defs.j_cry_kidnap = jd.round_money(dollar_bonus)
-	defs.j_cry_tax_fraud = jd.round_money(dollar_bonus)
+	defs.j_cry_morse = jd.round_money(jd.dollar_bonus)
+	defs.j_cry_kidnap = jd.round_money(jd.dollar_bonus)
+	defs.j_cry_tax_fraud = jd.round_money(jd.dollar_bonus)
 
 	-- Sapling: like Invisible Joker. Counts scored enhanced cards until it can be sold for a Joker.
 	defs.j_cry_sapling = jd.progress(function(card)
@@ -584,7 +580,7 @@ return function(jd)
 		end,
 	})
 
-	-- Old Membership Card: X Mult for each member of the Cryptid Discord.
+	-- Membership Card: X Mult for each member of the Cryptid Discord.
 	defs.j_cry_membershipcard = {
 		text = jd.bonus_text("xmult", "x_mult"),
 		calc_function = function(card)
@@ -622,12 +618,9 @@ return function(jd)
 	end)
 
 	-- Digital Hallucinations: like Hallucination, its chance.
-	defs.j_cry_digitalhallucinations = jd.add_odds({
-		calc_function = function(card)
-			card.joker_display_values.odds =
-				jd.odds_text(SMODS.get_probability_vars(card, 1, card.ability.odds, "Digital Hallucinations"))
-		end,
-	})
+	defs.j_cry_digitalhallucinations = jd.chance(function(card)
+		return SMODS.get_probability_vars(card, 1, card.ability.odds, "Digital Hallucinations")
+	end)
 
 	-- Broken Home: like Gros Michel. X Mult, and its chance to be destroyed.
 	local brokenhome = jd.add_odds(jd.stat("xmult", "Xmult"))
