@@ -2721,6 +2721,19 @@ local revert = {
 	init = function(self)
 		local sr = save_run
 		function save_run()
+			-- In a Multiplayer lobby, save without the ://REVERT snapshot. MultiplayerAPI's
+			-- crash-rejoin save and MultiplayerPvP's run snapshot call save_run() for the save
+			-- table, and the snapshot (a whole save nested in G.GAME) would only make it bigger.
+			-- ://REVERT can't be used in a lobby, since it never gets a snapshot.
+			-- This must stay above the USING_CODE check: MultiplayerPvP's
+			-- lovely/compatibility.toml puts a lobby `return` right before that check, which
+			-- would block every save in a lobby.
+			if Cryptid.in_mp_lobby() then
+				if not G.GAME.USING_CODE then
+					sr()
+				end
+				return
+			end
 			--Sneaking this here but hopefully fixes pointer UI crashes
 			if G.GAME.USING_CODE then
 				return
