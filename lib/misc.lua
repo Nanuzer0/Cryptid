@@ -351,8 +351,9 @@ function Cryptid.random_consumable(seed, excluded_flags, banned_card, pool, no_u
 		-- create a random consumable naively
 		local key = pseudorandom_element(pool or G.P_CENTER_POOLS.Consumeables, pseudoseed(seed or "grc")).key
 		selection = G.P_CENTERS[key]
-		-- check if it is valid
-		if selection.discovered or not no_undiscovered then
+		-- check if it is valid (banned cards, from challenges or Multiplayer lobbies, never are)
+		local banned = G.GAME and G.GAME.banned_keys and G.GAME.banned_keys[key]
+		if not banned and (selection.discovered or not no_undiscovered) then
 			for k, v in pairs(excluded_flags) do
 				if not Cryptid.no(selection, v, key, true) then
 					--Makes the consumable invalid if it's a specific card unless it's set to
