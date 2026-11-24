@@ -5544,6 +5544,16 @@ return {
 			cry_gameset_exp_mainline = "Experimental (Mainline)",
 			cry_gameset_exp_madness = "Experimental (Madness)",
 
+			cry_mp_status_match = "Cryptid: no differences found",
+			cry_mp_status_differs = "Cryptid differs between players",
+			cry_mp_status_host_tip = "Guests compare their Cryptid settings with yours",
+			cry_mp_on = "On",
+			cry_mp_off = "Off",
+			cry_mp_mismatch_title = "Cryptid differs between players:",
+			cry_mp_mismatch_footer = "Shops, packs and bosses may not match.",
+			cry_mp_host_no_settings = "The host's Cryptid doesn't share its settings",
+			cry_mp_diff_overrides = "Per-card gameset settings differ from the host's",
+
 			cry_view_set_contents = "View Items in Set",
 
 			cry_sapling_an = "an",
@@ -5700,6 +5710,15 @@ return {
 			},
 		},
 		v_dictionary = {
+			cry_mp_no_cryptid = "#1# doesn't have Cryptid",
+			cry_mp_other_version = "#1# has Cryptid #2#, you have #3#",
+			cry_mp_diff_version = "Cryptid version: yours #1#, host's #2#",
+			cry_mp_diff_gameset = "Gameset: yours #1#, host's #2#",
+			cry_mp_diff_experimental = "Experimental Mode: yours #1#, host's #2#",
+			cry_mp_diff_none = "None hand unlocked: yours #1#, host's #2#",
+			cry_mp_diff_items = "Enabled Cryptid items differ (yours #1#, host's #2#)",
+			cry_mp_diff_centers = "Other mods' cards differ (yours #1# in all, host's #2#)",
+
 			a_xchips = "X#1# Chips",
 			a_powmult = "^#1# Mult",
 			a_powchips = "^#1# Chips",
