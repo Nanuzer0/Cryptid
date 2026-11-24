@@ -98,9 +98,115 @@ function Cryptid.mp_settings()
 	}
 end
 
+----------------------------------------------------------------------------------------------------
+-- Lobby bans
+--
+-- Cards that break a match or don't fit one. MultiplayerPvP's compatibility file means to ban
+-- these, but its PVP.DECK.ban_card drops keys that start with "c", so they were never banned.
+-- They're banned through MPAPI's ban source instead: G.GAME.banned_keys keeps their pool slots,
+-- so other draws stay aligned between players. The host can allow the first four in Lobby
+-- Options; every player reads the host's choice from the lobby metadata, so all ban the same.
+----------------------------------------------------------------------------------------------------
+
+Cryptid.mp.lobby_bans = { "c_cry_crash", "c_cry_semicolon", "c_cry_analog", "c_cry_reboot" }
+-- ://REVERT never gets its snapshot in a lobby (see its save_run wrapper), so it can't work there.
+Cryptid.mp.always_banned = { "c_cry_revert" }
+
+-- The host's choices for this session: [key] = true when allowed.
+Cryptid.mp.allowed = {}
+for _, key in ipairs(Cryptid.mp.lobby_bans) do
+	Cryptid.mp.allowed[key] = false
+end
+
+local function is_lobby_ban(key)
+	for _, list in ipairs({ Cryptid.mp.lobby_bans, Cryptid.mp.always_banned }) do
+		for _, k in ipairs(list) do
+			if k == key then
+				return true
+			end
+		end
+	end
+	return false
+end
+
+-- Lobby kinds whose host picks the allowed cards: private lobbies, and PvP's practice mode.
+-- Matchmade lobbies always ban all of them.
+local function host_picks_bans(kind)
+	if type(PVP) ~= "table" or type(PVP.LobbyAccess) ~= "table" then
+		return false
+	end
+	kind = kind or PVP.LobbyAccess.PRIVATE
+	return kind == PVP.LobbyAccess.PRIVATE or kind == PVP.LobbyAccess.PRACTICE
+end
+
+-- [key] = true for each card the current lobby allows. Without Cryptid's metadata (a host
+-- without this Cryptid build) nothing is allowed.
+function Cryptid.mp_lobby_allowed()
+	local allowed = {}
+	local lobby = MPAPI.get_current_lobby()
+	local meta = lobby and lobby:get_metadata()
+	local info = type(meta) == "table" and meta.cry_lobby
+	if type(info) == "table" and type(info.allowed) == "table" then
+		for _, key in ipairs(Cryptid.mp.lobby_bans) do
+			for _, k in ipairs(info.allowed) do
+				if k == key then
+					allowed[key] = true
+				end
+			end
+		end
+	end
+	return allowed
+end
+
+-- Applied at run start, before the ante-1 rolls (MPAPI's ApplyBanKeys)
+if type(MPAPI.register_ban_source) == "function" then
+	MPAPI.register_ban_source(function()
+		local ok, allowed = pcall(Cryptid.mp_lobby_allowed)
+		if not ok then
+			warn("Couldn't read the lobby's allowed cards, banning all: " .. tostring(allowed))
+			allowed = {}
+		end
+		local keys = {}
+		for _, key in ipairs(Cryptid.mp.lobby_bans) do
+			if not allowed[key] then
+				keys[#keys + 1] = key
+			end
+		end
+		for _, key in ipairs(Cryptid.mp.always_banned) do
+			keys[#keys + 1] = key
+		end
+		return keys
+	end)
+end
+
+-- Safety net for a banned card that got created anyway (by a key, which skips the pools)
+local can_use_consumeable_ref = Card.can_use_consumeable
+function Card:can_use_consumeable(any_state, skip_check)
+	local key = self.config and self.config.center and self.config.center.key
+	if
+		key
+		and G.GAME
+		and G.GAME.banned_keys
+		and G.GAME.banned_keys[key]
+		and is_lobby_ban(key)
+		and Cryptid.in_mp_lobby()
+	then
+		return false
+	end
+	return can_use_consumeable_ref(self, any_state, skip_check)
+end
+
 -- What the host publishes in the lobby metadata, under `cry_lobby`.
-function Cryptid.mp_lobby_info()
-	return { settings = Cryptid.mp_settings() }
+function Cryptid.mp_lobby_info(kind)
+	local allowed = {}
+	if host_picks_bans(kind) then
+		for _, key in ipairs(Cryptid.mp.lobby_bans) do
+			if Cryptid.mp.allowed[key] then
+				allowed[#allowed + 1] = key
+			end
+		end
+	end
+	return { settings = Cryptid.mp_settings(), allowed = allowed }
 end
 
 local function loc_var(key, vars)
@@ -367,5 +473,108 @@ if type(PVP) == "table" and type(PVP.pvp_lobby_metadata) == "function" then
 			end
 		end
 		return meta
+	end
+end
+
+----------------------------------------------------------------------------------------------------
+-- Lobby Options: a Cryptid tab with the host's allowed cards
+----------------------------------------------------------------------------------------------------
+
+local function text_row(text, colour, scale)
+	return {
+		n = G.UIT.R,
+		config = { align = "cm", padding = 0.03 },
+		nodes = { { n = G.UIT.T, config = { text = text, scale = scale or 0.35, colour = colour or G.C.UI.TEXT_LIGHT } } },
+	}
+end
+
+local function card_name(key)
+	local center = G.P_CENTERS[key]
+	local name = center and localize({ type = "name_text", set = center.set, key = key })
+	return (name and name ~= "ERROR") and name or key
+end
+
+local function can_edit_bans(lobby)
+	return lobby
+		and lobby.is_host
+		and host_picks_bans(PVP._pvp_kind)
+		and not (type(lobby.is_game_started) == "function" and lobby:is_game_started())
+end
+
+local function publish_bans()
+	local lobby = MPAPI.get_current_lobby()
+	if can_edit_bans(lobby) then
+		lobby:set_metadata({ cry_lobby = Cryptid.mp_lobby_info(PVP._pvp_kind) })
+	end
+end
+
+local function toggle_row(key, ref_table, editable)
+	local args = {
+		label = card_name(key),
+		ref_table = ref_table,
+		ref_value = key,
+		callback = publish_bans,
+		w = 3,
+	}
+	if type(MPAPI.disableable_toggle) == "function" then
+		args.enabled = function()
+			return editable
+		end
+		return { n = G.UIT.R, config = { align = "cm", padding = 0.05 }, nodes = { MPAPI.disableable_toggle(args).node } }
+	end
+	-- Without MPAPI's disabled look, guests just don't get a toggle
+	if editable then
+		return create_toggle(args)
+	end
+	return text_row(args.label .. ": " .. localize(ref_table[key] and "cry_mp_on" or "cry_mp_off"))
+end
+
+local function cryptid_tab()
+	local lobby = MPAPI.get_current_lobby()
+	local rows = { text_row(localize("cry_mp_allowed_title"), G.C.UI.TEXT_LIGHT, 0.45) }
+	local editable = can_edit_bans(lobby) and true or false
+	local ref_table = Cryptid.mp.allowed
+	if not editable then
+		-- What the lobby actually allows, from the host's metadata
+		ref_table = {}
+		local allowed = Cryptid.mp_lobby_allowed()
+		for _, key in ipairs(Cryptid.mp.lobby_bans) do
+			ref_table[key] = allowed[key] or false
+		end
+	end
+	for _, key in ipairs(Cryptid.mp.lobby_bans) do
+		rows[#rows + 1] = toggle_row(key, ref_table, editable)
+	end
+	rows[#rows + 1] = text_row(localize("cry_mp_revert_banned"), G.C.UI.TEXT_INACTIVE, 0.3)
+
+	return {
+		n = G.UIT.ROOT,
+		config = { emboss = 0.05, minh = 6, r = 0.1, minw = 8, align = "tm", padding = 0.2, colour = G.C.BLACK },
+		nodes = rows,
+	}
+end
+
+-- PVP.build_lobby_options keeps its tab list local, so the tab goes in through create_tabs
+-- while it runs.
+if type(PVP) == "table" and type(PVP.build_lobby_options) == "function" then
+	local build_lobby_options_ref = PVP.build_lobby_options
+	function PVP.build_lobby_options(...)
+		local create_tabs_ref = create_tabs
+		create_tabs = function(args)
+			create_tabs = create_tabs_ref
+			if type(args) == "table" and type(args.tabs) == "table" then
+				args.tabs[#args.tabs + 1] = {
+					label = localize("cry_mp_tab"),
+					tab_definition_function = cryptid_tab,
+				}
+			end
+			return create_tabs_ref(args)
+		end
+		local ok, ret = pcall(build_lobby_options_ref, ...)
+		create_tabs = create_tabs_ref
+		if not ok then
+			error(ret, 0)
+		end
+		return ret
 	end
 end

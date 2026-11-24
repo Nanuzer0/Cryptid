@@ -5553,6 +5553,9 @@ return {
 			cry_mp_mismatch_footer = "Shops, packs and bosses may not match.",
 			cry_mp_host_no_settings = "The host's Cryptid doesn't share its settings",
 			cry_mp_diff_overrides = "Per-card gameset settings differ from the host's",
+			cry_mp_tab = "Cryptid",
+			cry_mp_allowed_title = "Allowed in this lobby (host's choice)",
+			cry_mp_revert_banned = "://REVERT is always banned in lobbies",
 
 			cry_view_set_contents = "View Items in Set",
 
